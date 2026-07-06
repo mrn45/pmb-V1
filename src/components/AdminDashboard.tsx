@@ -486,13 +486,14 @@ export default function AdminDashboard({
 
     let csvContent = "data:text/csv;charset=utf-8,";
     // Header
-    csvContent += "No Pendaftaran,Jenjang,NIK,NISN,Nama Lengkap,Jenis Kelamin,Kabupaten,Desa,No HP,Sekolah Asal,Status,Tanggal Daftar\n";
+    csvContent += "No Pendaftaran,Jenjang,NIK,No KK,NISN,Nama Lengkap,Jenis Kelamin,Kabupaten,Desa,No HP,Sekolah Asal,Status,Tanggal Daftar\n";
 
     registrations.forEach(r => {
       const row = [
         r.registrationNumber,
         r.level,
         r.nik,
+        r.noKK || "-",
         r.nisn || "-",
         `"${r.fullName.replace(/"/g, '""')}"`,
         r.gender,
@@ -1648,6 +1649,10 @@ export default function AdminDashboard({
                   <div>
                     <span className="block text-[10px] font-bold text-slate-400 uppercase">NIK Calon Siswa</span>
                     <span className="font-mono font-semibold text-slate-800">{selectedReg.nik}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-slate-400 uppercase">Nomor KK</span>
+                    <span className="font-mono font-semibold text-slate-800">{selectedReg.noKK || "-"}</span>
                   </div>
                   {selectedReg.nisn && (
                     <div>

@@ -331,6 +331,10 @@ export default function PesertaDashboard({
                     <span className="font-bold">{registration.nik}</span>
                   </div>
                   <div>
+                    <span className="block text-teal-200 text-[10px] uppercase">Nomor KK:</span>
+                    <span className="font-bold">{registration.noKK || "-"}</span>
+                  </div>
+                  <div>
                     <span className="block text-teal-200 text-[10px] uppercase">Tanggal Daftar:</span>
                     <span className="font-bold">{new Date(registration.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</span>
                   </div>
@@ -484,6 +488,17 @@ export default function PesertaDashboard({
                     disabled
                     type="text"
                     value={registration.nik}
+                    className="w-full text-sm px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 focus:outline-none cursor-not-allowed font-mono font-bold"
+                  />
+                </div>
+
+                {/* No KK */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Nomor Kartu Keluarga</label>
+                  <input
+                    disabled
+                    type="text"
+                    value={registration.noKK || "-"}
                     className="w-full text-sm px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 focus:outline-none cursor-not-allowed font-mono font-bold"
                   />
                 </div>

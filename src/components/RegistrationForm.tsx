@@ -39,6 +39,7 @@ export default function RegistrationForm({
   const [formData, setFormData] = useState({
     level: initialLevel || Jenjang.SMPI,
     nik: "",
+    noKK: "",
     nisn: "",
     fullName: "",
     gender: "Laki-laki" as "Laki-laki" | "Perempuan",
@@ -74,6 +75,9 @@ export default function RegistrationForm({
     if (name === "nik") {
       if (!value) err = "NIK wajib diisi";
       else if (!/^\d{16}$/.test(value)) err = "NIK harus tepat 16 digit angka";
+    } else if (name === "noKK") {
+      if (!value) err = "No. KK wajib diisi";
+      else if (!/^\d{16}$/.test(value)) err = "No. KK harus tepat 16 digit angka";
     } else if (name === "nisn") {
       // NISN optional for MDT / PAUD
       const levelIsMdtOrPaud = formData.level === Jenjang.MDT || formData.level === Jenjang.PAUD;
@@ -343,6 +347,32 @@ export default function RegistrationForm({
                 ) : (
                   <span className="text-[10px] text-slate-400 mt-1 block">
                     Sesuai dengan NIK yang tertera pada Kartu Keluarga (KK).
+                  </span>
+                )}
+              </div>
+
+              {/* No KK */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
+                  Nomor Kartu Keluarga (16 Digit) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  required
+                  type="text"
+                  name="noKK"
+                  maxLength={16}
+                  value={formData.noKK}
+                  onChange={handleInputChange}
+                  placeholder="Contoh: 352901xxxxxxxxxx"
+                  className={`w-full text-sm px-3.5 py-2.5 bg-slate-50 border rounded-lg focus:outline-none focus:border-primary ${
+                    errors.noKK ? "border-red-300" : "border-slate-200"
+                  }`}
+                />
+                {errors.noKK ? (
+                  <span className="text-red-500 text-[10px] mt-1 block font-semibold">{errors.noKK}</span>
+                ) : (
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    Masukkan 16 digit Nomor Kartu Keluarga.
                   </span>
                 )}
               </div>
@@ -811,6 +841,10 @@ export default function RegistrationForm({
                 <div>
                   <span className="block text-[10px] uppercase font-bold text-slate-400">NIK Calon Siswa:</span>
                   <span className="font-bold text-slate-800">{formData.nik}</span>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase font-bold text-slate-400">Nomor KK:</span>
+                  <span className="font-bold text-slate-800">{formData.noKK}</span>
                 </div>
                 <div>
                   <span className="block text-[10px] uppercase font-bold text-slate-400">Nama Lengkap:</span>

@@ -39,6 +39,7 @@ export interface Registration {
   registrationNumber: string;
   level: Jenjang;
   nik: string;
+  noKK: string;
   nisn?: string;
   fullName: string;
   gender: "Laki-laki" | "Perempuan";

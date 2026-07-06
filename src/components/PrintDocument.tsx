@@ -148,6 +148,10 @@ export default function PrintDocument({
                   <span className="block text-[10px] uppercase font-bold text-slate-400">NIK Calon Siswa:</span>
                   <span className="font-semibold text-slate-800">{registration.nik}</span>
                 </div>
+                <div>
+                  <span className="block text-[10px] uppercase font-bold text-slate-400">Nomor KK:</span>
+                  <span className="font-semibold text-slate-800">{registration.noKK || "-"}</span>
+                </div>
                 {registration.nisn && (
                   <div>
                     <span className="block text-[10px] uppercase font-bold text-slate-400">NISN:</span>

@@ -86,7 +86,7 @@ export function setupMockApi() {
         
         if (url === '/api/settings' && method === 'PUT') {
           await setDoc(doc(db, 'settings', 'system'), body, { merge: true });
-          return res(200, body);
+          return res(200, { settings: body });
         }
 
         if (url === '/api/announcements' && method === 'GET') {
@@ -99,7 +99,7 @@ export function setupMockApi() {
         if (url === '/api/announcements' && method === 'POST') {
           const ann = { ...body, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
           await setDoc(doc(db, 'announcements', ann.id), ann);
-          return res(201, ann);
+          return res(201, { announcement: ann });
         }
 
         if (url.startsWith('/api/announcements/') && method === 'DELETE') {
@@ -118,7 +118,7 @@ export function setupMockApi() {
         if (url === '/api/users' && method === 'POST') {
           const u = { ...body, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
           await setDoc(doc(db, 'users', u.id), u);
-          return res(201, u);
+          return res(201, { user: u });
         }
 
         if (url.startsWith('/api/users/') && method === 'DELETE') {
@@ -157,6 +157,14 @@ export function setupMockApi() {
           const docSnap = await getDoc(doc(db, 'registrations', id));
           if (docSnap.exists()) return res(200, docSnap.data());
           return res(404, { message: 'Not found' });
+        }
+
+        if (url.match(/\/api\/registrations\/[^\/]+$/) && method === 'PUT') {
+          const id = url.split('/').pop();
+          const docRef = doc(db, 'registrations', id);
+          await updateDoc(docRef, body);
+          const docSnap = await getDoc(docRef);
+          return res(200, { registration: docSnap.data() });
         }
 
         if (url.match(/\/api\/registrations\/[^\/]+\/status$/) && method === 'PUT') {
