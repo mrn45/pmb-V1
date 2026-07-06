@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Printer, ArrowLeft, Check, Award, AlertCircle } from "lucide-react";
 import { Registration, StatusPendaftaran, Jenjang } from "../types.js";
 
@@ -22,6 +22,7 @@ export default function PrintDocument({
   autoPrint = false,
   settings
 }: PrintDocumentProps) {
+  const [showIframeAlert, setShowIframeAlert] = useState(false);
 
   useEffect(() => {
     if (autoPrint) {
@@ -33,7 +34,16 @@ export default function PrintDocument({
   }, [autoPrint]);
 
   const handlePrint = () => {
-    window.print();
+    try {
+      const isIframe = window !== window.parent;
+      if (isIframe) {
+        setShowIframeAlert(true);
+      } else {
+        window.print();
+      }
+    } catch (e) {
+      setShowIframeAlert(true);
+    }
   };
 
   const getDocTitle = () => {
@@ -58,6 +68,29 @@ export default function PrintDocument({
 
   return (
     <div className="min-h-screen bg-slate-100 py-10 px-4 sm:px-6 no-print">
+      {/* Iframe Print Alert Modal */}
+      {showIframeAlert && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print:hidden">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 text-center relative overflow-hidden">
+            <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4">
+              <Printer className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-cairo font-bold text-slate-900 mb-2">Pencetakan Terblokir</h3>
+            <p className="text-sm text-slate-600 mb-6 px-2">
+              Anda sedang melihat aplikasi di dalam mode <b>Preview (Iframe)</b>. Fungsi cetak dokumen (Print) sering kali diblokir oleh browser di mode ini.
+              <br/><br/>
+              Silakan klik ikon <b>"Open in New Tab"</b> (Buka di Tab Baru) di pojok kanan atas browser Anda, lalu coba cetak kembali.
+            </p>
+            <button
+              onClick={() => setShowIframeAlert(false)}
+              className="w-full py-3 bg-primary hover:bg-teal-800 text-white rounded-xl font-bold transition-all text-sm cursor-pointer"
+            >
+              Mengerti
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Control Navigation Header (Invisible when printing) */}
       <div className="max-w-3xl mx-auto mb-6 flex items-center justify-between no-print bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <button
@@ -376,7 +409,7 @@ export default function PrintDocument({
 
             <div className="space-y-12 relative">
               <div>
-                <span className="block text-slate-400 font-bold uppercase text-[9px] mb-1">Sekretariat SPMB Sumenep</span>
+                <span className="block text-slate-400 font-bold uppercase text-[9px] mb-1">SEKRETARIAT SPMB YASYFI</span>
                 <span className="block text-slate-800 font-semibold font-mono tracking-wide">Ketua Panitia SPMB,</span>
               </div>
               <div className="pt-4 relative">
@@ -386,7 +419,7 @@ export default function PrintDocument({
                 </div>
                 <div className="w-40 h-[1px] bg-slate-400 mx-auto" />
                 <span className="block text-slate-900 font-bold mt-1 font-cairo text-[10px]">{settings?.ketuaPanitia || "Ahmad Syarif, S.Pd"}</span>
-                <span className="block text-[8px] text-slate-400 font-mono">{settings?.ketuaPanitia ? "Ketua Panitia SPMB Yayasan" : "NIPY. 198804022012091001"}</span>
+                <span className="block text-[8px] text-slate-400 font-mono">{settings?.ketuaPanitia ? "Ketua Panitia SPMB Yayasan Assyafiiyah" : "NIPY. 198804022012091001"}</span>
               </div>
             </div>
           </div>

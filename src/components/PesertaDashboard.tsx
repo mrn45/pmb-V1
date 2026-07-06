@@ -346,7 +346,7 @@ export default function PesertaDashboard({
               </div>
 
               {/* Card 2: QR Scanner Container */}
-              <div className="bg-white border border-slate-100/80 rounded-2xl p-6 flex flex-col items-center justify-between text-center islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
+              <div className="glass-panel rounded-2xl p-6 flex flex-col items-center justify-between text-center islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
                 <IslamicCorners />
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 relative z-10">QR Code Verifikasi</span>
                 {registration.qrCodeUrl ? (
@@ -359,7 +359,7 @@ export default function PesertaDashboard({
             </div>
 
             {/* Application Progress Map */}
-            <div className="bg-white border border-slate-100/80 rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
+            <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
               <IslamicCorners />
               <h3 className="font-cairo font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider relative z-10">Tahapan Pengolahan Berkas</h3>
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center relative z-10">
@@ -414,7 +414,7 @@ export default function PesertaDashboard({
 
         {/* TAB: PROFIL PENDAFTAR (EDIT FORM) */}
         {activeTab === "profil" && registration && (
-          <div className="bg-white border border-slate-100/80 rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
+          <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h2 className="text-lg font-cairo font-bold text-primary flex items-center gap-2">
                 <User className="w-5 h-5 text-accent" />
@@ -651,7 +651,7 @@ export default function PesertaDashboard({
 
         {/* TAB: STATUS KELULUSAN */}
         {activeTab === "status" && registration && (
-          <div className="bg-white border border-slate-100/80 rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
+          <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
             <h2 className="text-lg font-cairo font-bold text-primary border-b border-slate-100 pb-3 flex items-center gap-2">
               <Activity className="w-5 h-5 text-accent" />
               <span>Status Hasil Seleksi Kelulusan</span>
@@ -731,7 +731,7 @@ export default function PesertaDashboard({
             {announcements && announcements.length > 0 ? (
               <div className="space-y-6">
                 {announcements.map((ann) => (
-                  <div key={ann.id} className="bg-white border border-slate-100/80 rounded-2xl p-6 relative overflow-hidden group smooth-shadow smooth-shadow-hover">
+                  <div key={ann.id} className="glass-panel rounded-2xl p-6 relative overflow-hidden group smooth-shadow-hover">
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary" />
                     <div className="flex justify-between items-center text-xs text-slate-400 mb-2 font-semibold">
                       <span>Panitia SPMB Yayasan</span>
@@ -743,7 +743,7 @@ export default function PesertaDashboard({
                 ))}
               </div>
             ) : (
-              <div className="bg-white border border-slate-100/80 rounded-2xl p-12 text-center smooth-shadow-lg">
+              <div className="glass-panel rounded-2xl p-12 text-center smooth-shadow-lg">
                 <Megaphone className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                 <h3 className="font-cairo font-bold text-slate-800 text-base">Belum Ada Pengumuman</h3>
                 <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed mt-1">
@@ -756,7 +756,7 @@ export default function PesertaDashboard({
 
         {/* TAB: CETAK DOKUMEN */}
         {activeTab === "cetak" && registration && (
-          <div className="bg-white border border-slate-100/80 rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
+          <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
             <h2 className="text-lg font-cairo font-bold text-primary border-b border-slate-100 pb-3 flex items-center gap-2">
               <Printer className="w-5 h-5 text-accent" />
               <span>Cetak Dokumen Resmi Pendaftaran</span>
@@ -768,7 +768,7 @@ export default function PesertaDashboard({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
               {/* Card 1: Bukti Daftar */}
-              <div className="border border-slate-150 rounded-2xl p-6 flex flex-col justify-between hover:border-primary transition-colors bg-slate-50/50">
+              <div className="border border-slate-150 rounded-2xl p-6 flex flex-col justify-between hover:border-primary transition-colors bg-slate-50/40 backdrop-blur-sm">
                 <div className="space-y-2">
                   <span className="px-2 py-0.5 bg-teal-100 text-teal-800 text-[9px] font-bold rounded uppercase">SELALU TERSEDIA</span>
                   <h3 className="font-cairo font-bold text-slate-800 text-sm mt-1.5">Bukti Pendaftaran Online</h3>
@@ -778,7 +778,7 @@ export default function PesertaDashboard({
                 </div>
                 <button
                   onClick={() => onPrint("BUKTI")}
-                  className="w-full mt-6 py-2.5 bg-primary text-white hover:bg-teal-800 font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5 smooth-btn"
+                  className="w-full mt-6 py-2.5 bg-primary text-white hover:bg-teal-800 font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5 smooth-btn smooth-btn"
                 >
                   <Printer className="w-4 h-4 text-accent" />
                   <span>Cetak Bukti</span>
@@ -786,7 +786,7 @@ export default function PesertaDashboard({
               </div>
 
               {/* Card 2: Kartu Peserta */}
-              <div className="border border-slate-150 rounded-2xl p-6 flex flex-col justify-between hover:border-primary transition-colors bg-slate-50/50">
+              <div className="border border-slate-150 rounded-2xl p-6 flex flex-col justify-between hover:border-primary transition-colors bg-slate-50/40 backdrop-blur-sm">
                 <div className="space-y-2">
                   <span className="px-2 py-0.5 bg-teal-100 text-teal-800 text-[9px] font-bold rounded uppercase">SELALU TERSEDIA</span>
                   <h3 className="font-cairo font-bold text-slate-800 text-sm mt-1.5">Kartu Peserta Ujian</h3>
@@ -796,7 +796,7 @@ export default function PesertaDashboard({
                 </div>
                 <button
                   onClick={() => onPrint("KARTU")}
-                  className="w-full mt-6 py-2.5 bg-primary text-white hover:bg-teal-800 font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5 smooth-btn"
+                  className="w-full mt-6 py-2.5 bg-primary text-white hover:bg-teal-800 font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5 smooth-btn smooth-btn"
                 >
                   <Printer className="w-4 h-4 text-accent" />
                   <span>Cetak Kartu</span>
@@ -804,7 +804,7 @@ export default function PesertaDashboard({
               </div>
 
               {/* Card 3: Surat Kelulusan */}
-              <div className={`border rounded-2xl p-6 flex flex-col justify-between bg-slate-50/50 ${
+              <div className={`border rounded-2xl p-6 flex flex-col justify-between bg-slate-50/40 backdrop-blur-sm ${
                 registration.status === StatusPendaftaran.DITERIMA
                   ? "border-emerald-200 hover:border-emerald-500"
                   : "border-slate-150 opacity-60"
@@ -823,7 +823,7 @@ export default function PesertaDashboard({
                 {registration.status === StatusPendaftaran.DITERIMA ? (
                   <button
                     onClick={() => onPrint("KELULUSAN")}
-                    className="w-full mt-6 py-2.5 bg-secondary text-white hover:bg-green-700 font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5 smooth-btn"
+                    className="w-full mt-6 py-2.5 bg-secondary text-white hover:bg-green-700 font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5 smooth-btn smooth-btn"
                   >
                     <Printer className="w-4 h-4 text-accent" />
                     <span>Cetak Kelulusan</span>
@@ -843,7 +843,7 @@ export default function PesertaDashboard({
 
         {/* TAB: GANTI PASSWORD */}
         {activeTab === "password" && (
-          <div className="bg-white border border-slate-100/80 rounded-2xl p-6 sm:p-8 max-w-xl mx-auto space-y-6 smooth-shadow-lg">
+          <div className="glass-panel rounded-2xl p-6 sm:p-8 max-w-xl mx-auto space-y-6 smooth-shadow-lg">
             <h2 className="text-lg font-cairo font-bold text-primary border-b border-slate-100 pb-3 flex items-center gap-2">
               <Lock className="w-5 h-5 text-accent" />
               <span>Ganti Kata Sandi Akun</span>

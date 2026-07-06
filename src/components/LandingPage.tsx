@@ -247,7 +247,7 @@ export default function LandingPage({
         <div className="absolute top-20 left-10 w-72 h-72 bg-teal-500/10 rounded-full filter blur-3xl animate-pulse" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-500/10 rounded-full filter blur-3xl animate-pulse" />
 
-        <div className="max-w-5xl mx-auto text-center z-10 relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-3xl p-8 sm:p-12 border border-accent/15 shadow-2xl shadow-emerald-950/5 islamic-card-gilded">
+        <div className="max-w-5xl mx-auto text-center z-10 relative glass-panel islamic-card-gilded rounded-3xl p-8 sm:p-12">
           <IslamicCorners />
           
           <motion.div
@@ -358,7 +358,7 @@ export default function LandingPage({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="p-8 rounded-2xl bg-white border border-slate-100/80 smooth-shadow smooth-shadow-hover relative overflow-hidden group">
+            <div className="p-8 rounded-2xl glass-panel islamic-card-gilded relative overflow-hidden group">
               <IslamicCorners />
               <div className="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mx-auto mb-6 relative">
                 <BookOpen className="w-8 h-8" />
@@ -370,7 +370,7 @@ export default function LandingPage({
               </p>
             </div>
 
-            <div className="p-8 rounded-2xl bg-white border border-slate-100/80 smooth-shadow smooth-shadow-hover relative overflow-hidden group">
+            <div className="p-8 rounded-2xl glass-panel islamic-card-gilded relative overflow-hidden group">
               <IslamicCorners />
               <div className="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mx-auto mb-6 relative">
                 <Award className="w-8 h-8" />
@@ -382,7 +382,7 @@ export default function LandingPage({
               </p>
             </div>
 
-            <div className="p-8 rounded-2xl bg-white border border-slate-100/80 smooth-shadow smooth-shadow-hover relative overflow-hidden group">
+            <div className="p-8 rounded-2xl glass-panel islamic-card-gilded relative overflow-hidden group">
               <IslamicCorners />
               <div className="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mx-auto mb-6 relative">
                 <Users className="w-8 h-8" />
@@ -440,7 +440,7 @@ export default function LandingPage({
               return (
                 <div
                   key={lvl.id}
-                  className="bg-white rounded-2xl border border-slate-100/80 overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group relative smooth-shadow-lg"
+                  className="islamic-card-gilded overflow-hidden flex flex-col justify-between group relative"
                 >
                   <IslamicCorners />
                   <div className="p-6 relative z-10">
@@ -506,7 +506,7 @@ export default function LandingPage({
             <div className="absolute top-1/2 left-4 right-4 h-1 bg-slate-100 -translate-y-1/2 hidden lg:block z-0" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 relative z-10">
               {timelineSteps.map((step) => (
-                <div key={step.step} className="bg-white border border-slate-100/80 rounded-2xl p-6 text-center relative group overflow-hidden smooth-shadow smooth-shadow-hover">
+                <div key={step.step} className="glass-panel rounded-2xl p-6 text-center relative group overflow-hidden smooth-shadow-hover">
                   <IslamicCorners />
                   <div className="w-12 h-12 bg-primary text-white font-bold rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-accent/20 text-lg shadow-md group-hover:scale-110 transition-transform relative z-10">
                     {step.step}
@@ -533,7 +533,7 @@ export default function LandingPage({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white border border-slate-100/80 rounded-2xl p-8 relative overflow-hidden smooth-shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div className="glass-panel rounded-2xl p-8 relative overflow-hidden smooth-shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <IslamicCorners />
               <h3 className="text-lg font-cairo font-bold mb-4 text-primary flex items-center gap-2 relative z-10">
                 <CheckCircle className="w-5 h-5 text-accent" />
@@ -559,7 +559,7 @@ export default function LandingPage({
               </ul>
             </div>
 
-            <div className="bg-white border border-slate-100/80 rounded-2xl p-8 relative overflow-hidden smooth-shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div className="glass-panel rounded-2xl p-8 relative overflow-hidden smooth-shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <IslamicCorners />
               <h3 className="text-lg font-cairo font-bold mb-4 text-primary flex items-center gap-2 relative z-10">
                 <CheckCircle className="w-5 h-5 text-accent" />
@@ -606,7 +606,7 @@ export default function LandingPage({
 
             <div className="max-w-4xl mx-auto space-y-6">
               {announcements.map((ann) => (
-                <div key={ann.id} className="bg-white border border-slate-100/80 rounded-2xl p-6 sm:p-8 relative overflow-hidden group smooth-shadow smooth-shadow-hover">
+                <div key={ann.id} className="glass-panel rounded-2xl p-6 sm:p-8 relative overflow-hidden group smooth-shadow-hover">
                   <IslamicCorners />
                   <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary" />
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
@@ -638,7 +638,7 @@ export default function LandingPage({
 
           <div className="max-w-3xl mx-auto space-y-4">
             {faqs.map((faq, index) => (
-              <div key={index} className="bg-white border border-slate-100/80 rounded-xl overflow-hidden smooth-shadow smooth-shadow-hover">
+              <div key={index} className="glass-panel rounded-xl overflow-hidden smooth-shadow-hover">
                 <button
                   onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                   className="w-full flex items-center justify-between p-5 text-left font-semibold text-sm sm:text-base text-slate-900 hover:text-primary focus:outline-none"

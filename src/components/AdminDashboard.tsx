@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   BarChart,
   Bar,
@@ -31,6 +31,7 @@ import {
   Search,
   Filter,
   CheckCircle,
+  Info,
   XCircle,
   Clock,
   ArrowUpDown,
@@ -120,6 +121,23 @@ export default function AdminDashboard({
 
   // System Config form state
   const [configForm, setConfigForm] = useState<any>(null);
+
+  // Custom Alert Modal state
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: "success" | "error" | "info";
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info"
+  });
+
+  const showAlert = (title: string, message: string, type: "success" | "error" | "info" = "info") => {
+    setAlertModal({ isOpen: true, title, message, type });
+  };
 
   // Custom confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
@@ -259,7 +277,7 @@ export default function AdminDashboard({
       }
 
     } catch (e: any) {
-      alert(e.message || "Gagal mengubah status.");
+      showAlert("Error", e.message || "Gagal mengubah status.", "error");
     }
   };
 
@@ -285,7 +303,7 @@ export default function AdminDashboard({
             if (statsRes.ok) setStats(await statsRes.json());
           } else {
             const errData = await response.json();
-            alert(errData.message || "Gagal menghapus.");
+            showAlert("Error", errData.message || "Gagal menghapus.", "error");
           }
         } catch (e) {
           console.error(e);
@@ -315,9 +333,9 @@ export default function AdminDashboard({
         if (onSettingsUpdate) {
           onSettingsUpdate(rData.settings);
         }
-        alert("Konfigurasi sistem berhasil disimpan!");
+        showAlert("Berhasil", "Konfigurasi sistem berhasil disimpan!", "success");
       } else {
-        alert("Gagal menyimpan konfigurasi.");
+        showAlert("Error", "Gagal menyimpan konfigurasi.", "error");
       }
     } catch (e) {
       console.error(e);
@@ -344,9 +362,9 @@ export default function AdminDashboard({
         const rData = await response.json();
         setAnnouncements([rData.announcement, ...announcements]);
         setAnnForm({ title: "", content: "", targetRole: "ALL" });
-        alert("Pengumuman berhasil diterbitkan!");
+        showAlert("Berhasil", "Pengumuman berhasil diterbitkan!", "success");
       } else {
-        alert("Gagal membuat pengumuman.");
+        showAlert("Error", "Gagal membuat pengumuman.", "error");
       }
     } catch (e) {
       console.error(e);
@@ -369,7 +387,7 @@ export default function AdminDashboard({
           if (response.ok) {
             setAnnouncements(announcements.filter(a => a.id !== id));
           } else {
-            alert("Gagal menghapus pengumuman.");
+            showAlert("Error", "Gagal menghapus pengumuman.", "error");
           }
         } catch (e) {
           console.error(e);
@@ -405,7 +423,7 @@ export default function AdminDashboard({
       }
 
       setCommitteeUsers([...committeeUsers, resData.user]);
-      setNewUserSuccess(`Akun Panitia "${resData.user.fullName}" berhasil dibuat!`);
+      showAlert("Berhasil", `Akun Panitia "${resData.user.fullName}" berhasil dibuat!`, "success");
       setNewUserForm({ username: "", password: "", fullName: "", role: Role.PANITIA });
     } catch (err: any) {
       setNewUserError(err.message || "Terjadi kesalahan jaringan.");
@@ -414,7 +432,7 @@ export default function AdminDashboard({
 
   const handleDeleteUser = (id: string) => {
     if (id === "usr-admin") {
-      alert("Admin utama tidak dapat dihapus!");
+      showAlert("Peringatan", "Admin utama tidak dapat dihapus!", "error");
       return;
     }
 
@@ -432,7 +450,7 @@ export default function AdminDashboard({
             setCommitteeUsers(committeeUsers.filter(u => u.id !== id));
           } else {
             const resData = await response.json();
-            alert(resData.message || "Gagal menghapus.");
+            showAlert("Error", resData.message || "Gagal menghapus.", "error");
           }
         } catch (e) {
           console.error(e);
@@ -739,7 +757,7 @@ export default function AdminDashboard({
             {/* Recharts Graphs */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Daily Trend Line Graph */}
-              <div className="bg-white border border-slate-100/80 rounded-2xl p-6 lg:col-span-2 islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
+              <div className="glass-panel rounded-2xl p-6 lg:col-span-2 islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
                 <IslamicCorners />
                 <h3 className="font-cairo font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider relative z-10">Grafik Trend Pendaftaran (10 Hari Terakhir)</h3>
                 <div className="h-64 relative z-10">
@@ -762,7 +780,7 @@ export default function AdminDashboard({
               </div>
 
               {/* level distribution chart */}
-              <div className="bg-white border border-slate-100/80 rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
+              <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
                 <IslamicCorners />
                 <h3 className="font-cairo font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider relative z-10">Pendaftar Per Jenjang</h3>
                 <div className="h-64 relative z-10">
@@ -785,7 +803,7 @@ export default function AdminDashboard({
 
             {/* Geographic & Regional Bento info cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white border border-slate-100/80 rounded-2xl p-6 smooth-shadow-lg">
+              <div className="glass-panel rounded-2xl p-6 smooth-shadow-lg">
                 <h3 className="font-cairo font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">Asal Kecamatan Pendaftar</h3>
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {Object.keys(stats.districtCounts || {}).map((dist, idx) => (
@@ -799,7 +817,7 @@ export default function AdminDashboard({
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-100/80 rounded-2xl p-6 smooth-shadow-lg">
+              <div className="glass-panel rounded-2xl p-6 smooth-shadow-lg">
                 <h3 className="font-cairo font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">Asal Desa Pendaftar</h3>
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {Object.keys(stats.villageCounts || {}).map((village, idx) => (
@@ -818,7 +836,7 @@ export default function AdminDashboard({
 
         {/* TAB: DATA PESERTA (MASTER LIST) */}
         {activeTab === "peserta" && (
-          <div className="bg-white border border-slate-100/80 rounded-2xl overflow-hidden space-y-4 p-6 smooth-shadow-lg">
+          <div className="glass-panel rounded-2xl overflow-hidden space-y-4 p-6 smooth-shadow-lg">
             {/* Table Search & Filter Toolbar */}
             <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
               <div className="flex flex-wrap gap-2.5 items-center w-full md:w-auto">
@@ -910,7 +928,7 @@ export default function AdminDashboard({
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {registrations.length > 0 ? (
                     registrations.map((reg) => (
-                      <tr key={reg.id} className="hover:bg-slate-50/50 transition-colors">
+                      <tr key={reg.id} className="hover:bg-slate-50/40 backdrop-blur-sm transition-colors">
                         <td className="p-3.5 font-mono font-bold text-primary">{reg.registrationNumber}</td>
                         <td className="p-3.5 font-semibold text-slate-900 uppercase tracking-wide">{reg.fullName}</td>
                         <td className="p-3.5"><span className="px-2 py-0.5 bg-slate-100 text-slate-600 font-bold rounded">{reg.level}</span></td>
@@ -998,7 +1016,7 @@ export default function AdminDashboard({
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* LEFT CARD: GELOMBANG & KUOTA */}
-              <div className="bg-white border border-slate-100/80 rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
+              <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
                 <h3 className="text-sm font-cairo font-bold text-primary border-b border-slate-100 pb-3 flex items-center gap-2 uppercase tracking-wider">
                   <Settings className="w-5 h-5 text-accent" />
                   <span>Konfigurasi Gelombang & Kuota</span>
@@ -1055,7 +1073,7 @@ export default function AdminDashboard({
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
                       {Object.keys(Jenjang).map((level) => (
-                        <div key={level} className="p-3 bg-slate-50/50 border border-slate-100 rounded-xl flex items-center justify-between">
+                        <div key={level} className="p-3 bg-slate-50/40 backdrop-blur-sm border border-slate-100 rounded-xl flex items-center justify-between">
                           <div>
                             <label className="block text-[10px] font-bold text-slate-500 uppercase">{level}</label>
                             <span className="text-[10px] text-slate-400">Target Siswa</span>
@@ -1077,7 +1095,7 @@ export default function AdminDashboard({
               </div>
 
               {/* RIGHT CARD: ADMINISTRATOR SETTINGS (PROFIL & LOGO) */}
-              <div className="bg-white border border-slate-100/80 rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
+              <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h3 className="text-sm font-cairo font-bold text-primary flex items-center gap-2 uppercase tracking-wider">
                     <Building className="w-5 h-5 text-accent" />
@@ -1452,7 +1470,7 @@ export default function AdminDashboard({
               <h3 className="font-cairo font-bold text-slate-800 text-sm border-b border-slate-50 pb-2">Daftar Panitia & Pengawas</h3>
               <div className="space-y-3 max-h-[500px] overflow-y-auto">
                 {committeeUsers.filter(u => u.role !== Role.PESERTA).map((u) => (
-                  <div key={u.id} className="border border-slate-100 rounded-xl p-4 flex justify-between items-center bg-slate-50/50">
+                  <div key={u.id} className="border border-slate-100 rounded-xl p-4 flex justify-between items-center bg-slate-50/40 backdrop-blur-sm">
                     <div>
                       <h4 className="font-bold text-slate-900 text-sm font-cairo">{u.fullName}</h4>
                       <div className="flex gap-2 items-center mt-1 text-[10px] font-semibold text-slate-400">
@@ -1484,7 +1502,7 @@ export default function AdminDashboard({
             <div className="overflow-y-auto max-h-[550px] space-y-3.5 pr-1 text-xs">
               {auditLogs.length > 0 ? (
                 auditLogs.map((log) => (
-                  <div key={log.id} className="p-3 border border-slate-100 rounded-xl bg-slate-50/50 relative flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div key={log.id} className="p-3 border border-slate-100 rounded-xl bg-slate-50/40 backdrop-blur-sm relative flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-900 font-mono text-[11px]">{log.username}</span>
@@ -1507,7 +1525,7 @@ export default function AdminDashboard({
 
         {/* TAB: BACKUP & RESTORE DATABASE (ADMIN ONLY) */}
         {activeTab === "database" && user.role === Role.ADMIN && (
-          <div className="bg-white border border-slate-100/80 rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto space-y-6 smooth-shadow-lg">
+          <div className="glass-panel rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto space-y-6 smooth-shadow-lg">
             <h2 className="text-lg font-cairo font-bold text-primary border-b border-slate-100 pb-3 flex items-center gap-2">
               <Database className="w-5 h-5 text-accent" />
               <span>Pemeliharaan Database & Backup Cadangan</span>
@@ -1640,14 +1658,14 @@ export default function AdminDashboard({
                 <div className="grid grid-cols-3 gap-3">
                   <button
                     onClick={() => onPrint(selectedReg, "BUKTI")}
-                    className="py-2 bg-slate-100 hover:bg-primary hover:text-white font-bold rounded-xl transition-all text-[10px] cursor-pointer flex items-center justify-center gap-1.5 text-slate-700 shadow-sm"
+                    className="py-2 bg-slate-100 hover:bg-primary hover:text-white font-bold rounded-xl transition-all text-[10px] cursor-pointer flex items-center justify-center gap-1.5 smooth-btn text-slate-700 shadow-sm"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>Cetak Bukti</span>
                   </button>
                   <button
                     onClick={() => onPrint(selectedReg, "KARTU")}
-                    className="py-2 bg-slate-100 hover:bg-primary hover:text-white font-bold rounded-xl transition-all text-[10px] cursor-pointer flex items-center justify-center gap-1.5 text-slate-700 shadow-sm"
+                    className="py-2 bg-slate-100 hover:bg-primary hover:text-white font-bold rounded-xl transition-all text-[10px] cursor-pointer flex items-center justify-center gap-1.5 smooth-btn text-slate-700 shadow-sm"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>Cetak Kartu</span>
@@ -1655,7 +1673,7 @@ export default function AdminDashboard({
                   <button
                     disabled={selectedReg.status !== StatusPendaftaran.DITERIMA}
                     onClick={() => onPrint(selectedReg, "KELULUSAN")}
-                    className="py-2 bg-slate-100 hover:bg-secondary hover:text-white font-bold rounded-xl transition-all text-[10px] cursor-pointer flex items-center justify-center gap-1.5 text-slate-700 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="py-2 bg-slate-100 hover:bg-secondary hover:text-white font-bold rounded-xl transition-all text-[10px] cursor-pointer flex items-center justify-center gap-1.5 smooth-btn text-slate-700 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>Cetak Kelulusan</span>
@@ -1778,6 +1796,54 @@ export default function AdminDashboard({
             </motion.div>
           </div>
         )}
+        {/* Custom Alert Modal */}
+        <AnimatePresence>
+          {alertModal.isOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden flex flex-col items-center"
+              >
+                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                  <RubElHizb className="w-24 h-24 text-primary" />
+                </div>
+                
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
+                  alertModal.type === 'success' ? 'bg-green-100 text-green-600' : 
+                  alertModal.type === 'error' ? 'bg-red-100 text-red-600' : 
+                  'bg-blue-100 text-blue-600'
+                }`}>
+                  {alertModal.type === 'success' && <CheckCircle className="w-8 h-8" />}
+                  {alertModal.type === 'error' && <AlertTriangle className="w-8 h-8" />}
+                  {alertModal.type === 'info' && <Info className="w-8 h-8" />}
+                </div>
+                
+                <h3 className="text-xl font-cairo font-bold text-slate-900 dark:text-white mb-2">
+                  {alertModal.title}
+                </h3>
+                
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 px-2">
+                  {alertModal.message}
+                </p>
+                
+                <button
+                  onClick={() => setAlertModal(prev => ({ ...prev, isOpen: false }))}
+                  className="w-full py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all text-sm"
+                >
+                  Mengerti
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </main>
     </div>
   );

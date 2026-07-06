@@ -4,87 +4,99 @@
 @theme {
   --font-sans: "Inter", "Poppins", sans-serif;
   --font-cairo: "Cairo", "Poppins", sans-serif;
-  --color-primary: #0F766E;
-  --color-secondary: #16A34A;
-  --color-accent: #D4AF37;
+  
+  --color-primary: #047857; /* Deep emerald for a more premium look */
+  --color-secondary: #059669; 
+  --color-accent: #D4AF37; /* Gold */
+  --color-accent-light: #FBEBA4; /* Soft Gold */
   --color-dark: #0F172A;
 }
 
 /* Glassmorphism custom components with premium multi-layered shadows */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 4px 6px -1px rgba(15, 118, 110, 0.03),
-    0 12px 24px -4px rgba(15, 118, 110, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    0 10px 40px -10px rgba(4, 120, 87, 0.08),
+    0 1px 3px rgba(4, 120, 87, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.glass-panel:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 20px 50px -15px rgba(4, 120, 87, 0.12),
+    0 2px 6px rgba(4, 120, 87, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
 }
 
 .glass-panel-dark {
   background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 16px 32px -8px rgba(0, 0, 0, 0.3),
+    0 10px 40px -10px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* Islamic Geometric Subtle Background Grid overlay with beautiful stars */
 .islamic-pattern {
   background-color: transparent;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%230f766e' stroke-width='0.7' stroke-opacity='0.04'%3E%3Cpath d='M0 0h80v80H0z'/%3E%3Cpath d='M40 0l40 40-40 40L0 40z'/%3E%3Cpath d='M0 0l80 80M80 0L0 80'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3Ccircle cx='0' cy='0' r='10'/%3E%3Ccircle cx='80' cy='0' r='10'/%3E%3Ccircle cx='80' cy='80' r='10'/%3E%3Ccircle cx='0' cy='80' r='10'/%3E%3Cpath d='M40 10v60M10 40h60'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23047857' stroke-width='0.5' stroke-opacity='0.03'%3E%3Cpath d='M0 0h80v80H0z'/%3E%3Cpath d='M40 0l40 40-40 40L0 40z'/%3E%3Cpath d='M0 0l80 80M80 0L0 80'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3Ccircle cx='0' cy='0' r='10'/%3E%3Ccircle cx='80' cy='0' r='10'/%3E%3Ccircle cx='80' cy='80' r='10'/%3E%3Ccircle cx='0' cy='80' r='10'/%3E%3Cpath d='M40 10v60M10 40h60'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* Elegant gold-gilded card border with islamic corners and floating shadows */
 .islamic-card-gilded {
   position: relative;
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: linear-gradient(145deg, #ffffff, #fdfbf7);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 1.5rem;
   box-shadow: 
-    0 10px 30px -10px rgba(15, 118, 110, 0.12),
-    0 1px 3px rgba(212, 175, 55, 0.08);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    0 15px 35px -10px rgba(4, 120, 87, 0.08),
+    0 1px 3px rgba(212, 175, 55, 0.05);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .islamic-card-gilded:hover {
-  border-color: rgba(212, 175, 55, 0.6);
+  border-color: rgba(212, 175, 55, 0.5);
   box-shadow: 
-    0 20px 40px -15px rgba(15, 118, 110, 0.18),
-    0 1px 5px rgba(212, 175, 55, 0.15);
-  transform: translateY(-2px);
+    0 25px 50px -15px rgba(4, 120, 87, 0.15),
+    0 4px 10px rgba(212, 175, 55, 0.1);
+  transform: translateY(-4px);
 }
 
 .islamic-card-gilded::before {
   content: '';
   position: absolute;
-  top: 4px;
-  left: 4px;
-  right: 4px;
-  bottom: 4px;
-  border: 1px solid rgba(212, 175, 55, 0.18);
-  pointer-events: none;
-  border-radius: inherit;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.islamic-card-gilded:hover::before {
-  border-color: rgba(212, 175, 55, 0.3);
   top: 5px;
   left: 5px;
   right: 5px;
   bottom: 5px;
+  border: 1px dashed rgba(212, 175, 55, 0.25);
+  pointer-events: none;
+  border-radius: calc(1.5rem - 5px);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.islamic-card-gilded:hover::before {
+  border-color: rgba(212, 175, 55, 0.4);
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
 }
 
 /* Global Smooth Enhancements */
 html {
   scroll-behavior: smooth;
 }
-
 body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -94,95 +106,95 @@ body {
 /* Beautiful ultra-soft modern shadow classes for general dashboard cards */
 .smooth-shadow {
   box-shadow: 
-    0 4px 10px -1px rgba(15, 23, 42, 0.02),
-    0 12px 28px -4px rgba(15, 23, 42, 0.06);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    0 4px 12px -2px rgba(15, 23, 42, 0.03),
+    0 16px 32px -4px rgba(15, 23, 42, 0.06);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .smooth-shadow-lg {
   box-shadow: 
-    0 10px 15px -3px rgba(15, 23, 42, 0.03),
-    0 24px 48px -8px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    0 10px 20px -5px rgba(15, 23, 42, 0.04),
+    0 30px 60px -10px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .smooth-shadow-hover {
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .smooth-shadow-hover:hover {
   box-shadow: 
-    0 12px 20px -5px rgba(15, 23, 42, 0.05),
-    0 30px 60px -15px rgba(15, 23, 42, 0.12);
-  transform: translateY(-3px);
+    0 12px 24px -5px rgba(15, 23, 42, 0.06),
+    0 35px 70px -15px rgba(15, 23, 42, 0.12);
+  transform: translateY(-4px);
 }
 
 /* Button & interactive smooth states */
 .smooth-btn {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 4px rgba(15, 118, 110, 0.06);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(4, 120, 87, 0.15);
 }
 
 .smooth-btn:hover {
-  transform: translateY(-1.5px);
+  transform: translateY(-2px);
   box-shadow: 
-    0 8px 16px -4px rgba(15, 118, 110, 0.2),
-    0 2px 4px -1px rgba(15, 118, 110, 0.05);
+    0 10px 20px -5px rgba(4, 120, 87, 0.3),
+    0 4px 8px -2px rgba(4, 120, 87, 0.15);
 }
 
 .smooth-btn:active {
-  transform: translateY(0.5px);
-  box-shadow: 0 1px 2px rgba(15, 118, 110, 0.1);
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(4, 120, 87, 0.1);
 }
 
 /* Decorative Islamic Corner Ornaments */
 .islamic-corner-container {
   position: relative;
 }
-
 .islamic-corner-tl {
   position: absolute;
-  top: 6px;
-  left: 6px;
-  width: 16px;
-  height: 16px;
+  top: 8px;
+  left: 8px;
+  width: 20px;
+  height: 20px;
   border-top: 2px solid #D4AF37;
   border-left: 2px solid #D4AF37;
-  border-top-left-radius: 4px;
+  border-top-left-radius: 8px;
+  opacity: 0.8;
 }
-
 .islamic-corner-tr {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 16px;
-  height: 16px;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
   border-top: 2px solid #D4AF37;
   border-right: 2px solid #D4AF37;
-  border-top-right-radius: 4px;
+  border-top-right-radius: 8px;
+  opacity: 0.8;
 }
-
 .islamic-corner-bl {
   position: absolute;
-  bottom: 6px;
-  left: 6px;
-  width: 16px;
-  height: 16px;
+  bottom: 8px;
+  left: 8px;
+  width: 20px;
+  height: 20px;
   border-bottom: 2px solid #D4AF37;
   border-left: 2px solid #D4AF37;
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 8px;
+  opacity: 0.8;
 }
-
 .islamic-corner-br {
   position: absolute;
-  bottom: 6px;
-  right: 6px;
-  width: 16px;
-  height: 16px;
+  bottom: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
   border-bottom: 2px solid #D4AF37;
   border-right: 2px solid #D4AF37;
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 8px;
+  opacity: 0.8;
 }
 
 /* Islamic Elegant Divider with Star */
@@ -190,33 +202,29 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
   width: 100%;
 }
-
 .islamic-divider-line {
   flex-grow: 1;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.4), transparent);
+  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.5), transparent);
 }
 
 /* Custom scrollbar styling */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
-
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(4, 120, 87, 0.02);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: rgba(4, 120, 87, 0.2);
+  border-radius: 8px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(4, 120, 87, 0.4);
 }
 
 /* Print Specific Rules for High-Fidelity Documents */
