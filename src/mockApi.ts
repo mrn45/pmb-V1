@@ -160,6 +160,21 @@ export function setupMockApi() {
           return res(404, { message: 'Not found' });
         }
 
+                if (pathname.match(/\/api\/registrations\/[^\/]+$/) && method === 'DELETE') {
+          const id = pathname.split('/').pop();
+          if (id) {
+            await deleteDoc(doc(db, 'registrations', id));
+            const usersSnap = await getDocs(collection(db, 'users'));
+            usersSnap.forEach(async (uDoc) => {
+              const uData = uDoc.data();
+              if (uData.registrationId === id) {
+                await deleteDoc(doc(db, 'users', uDoc.id));
+              }
+            });
+            return res(200, { message: 'Deleted' });
+          }
+        }
+
         if (pathname.match(/\/api\/registrations\/[^\/]+$/) && method === 'PUT') {
           const id = pathname.split('/').pop();
           const docRef = doc(db, 'registrations', id);
