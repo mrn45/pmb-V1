@@ -129,10 +129,55 @@ export function setupMockApi() {
         }
         
         if (pathname === '/api/registrations' && method === 'GET') {
+          const searchParams = new URLSearchParams(url.split('?')[1] || '');
+          const search = searchParams.get('search') || '';
+          const level = searchParams.get('level') || 'ALL';
+          const status = searchParams.get('status') || 'ALL';
+          const sortField = searchParams.get('sortField') || 'createdAt';
+          const sortOrder = searchParams.get('sortOrder') || 'desc';
+          const page = parseInt(searchParams.get('page') || '1');
+          const limit = parseInt(searchParams.get('limit') || '10');
+
           const snap = await getDocs(collection(db, 'registrations'));
-          const regs = [];
+          let regs = [];
           snap.forEach(d => regs.push(d.data()));
-          return res(200, { data: regs, totalPages: 1, total: regs.length });
+
+          // Apply filters
+          if (level !== 'ALL') {
+            regs = regs.filter(r => r.level === level);
+          }
+          if (status !== 'ALL') {
+            regs = regs.filter(r => r.status === status);
+          }
+          if (search.trim() !== '') {
+            const query = search.toLowerCase();
+            regs = regs.filter(r => 
+              (r.fullName && r.fullName.toLowerCase().includes(query)) ||
+              (r.nik && r.nik.toLowerCase().includes(query)) ||
+              (r.registrationNumber && r.registrationNumber.toLowerCase().includes(query))
+            );
+          }
+
+          // Apply sorting
+          regs.sort((a, b) => {
+            let valA = a[sortField];
+            let valB = b[sortField];
+            
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+
+            if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+            if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+          });
+
+          // Apply pagination
+          const total = regs.length;
+          const totalPages = Math.ceil(total / limit);
+          const startIndex = (page - 1) * limit;
+          const paginatedRegs = regs.slice(startIndex, startIndex + limit);
+
+          return res(200, { data: paginatedRegs, totalPages, total });
         }
         
         if (pathname === '/api/registrations' && method === 'POST') {
