@@ -1,0 +1,56 @@
+{
+  "users": [
+    {
+      "id": "usr-admin",
+      "username": "admin",
+      "fullName": "Ahmad Hanafi, S.H",
+      "role": "ADMIN",
+      "createdAt": "2026-07-05T12:03:45.346Z",
+      "password": "22222n"
+    },
+    {
+      "id": "usr-panitia",
+      "username": "panitia",
+      "fullName": "Ahmad Syarif, S.Pd",
+      "role": "PANITIA",
+      "createdAt": "2026-07-05T12:03:45.346Z",
+      "password": "panitia123"
+    }
+  ],
+  "registrations": [],
+  "settings": {
+    "year": "2026/2027",
+    "gelombang": "Gelombang 1",
+    "statusActive": true,
+    "quota": {
+      "MDT": 60,
+      "PAUD": 40,
+      "SMPI": 120,
+      "SMAI": 100
+    },
+    "logoUrl": "https://i.ibb.co.com/1Gqdg7sZ/IMG-20220210-WA0259-removebg-preview.png",
+    "ketuaPanitia": "H. Ahmad Fauzi, S.Pd.I.",
+    "profilYayasan": "Yayasan Assyafiiyah Sumenep berdedikasi menyelenggarakan pendidikan Islam terpadu yang unggul, berakhlak mulia, dan berprestasi.",
+    "kontakPanitia": "085929800093 (Sekretariat SPMB)",
+    "facebookUrl": "https://facebook.com/assyafiiyah",
+    "instagramUrl": "https://instagram.com/assyafiiyah",
+    "youtubeUrl": "https://youtube.com/c/assyafiiyah"
+  },
+  "announcements": [
+    {
+      "id": "ann-1",
+      "title": "Pembukaan SPMB Online Yayasan Assyafiiyah",
+      "content": "Pendaftaran Murid Baru Yayasan Assyafiiyah Tahun Pelajaran 2026/2027 resmi dibuka secara online untuk jenjang MDT, PAUD, SMP Islam, dan SMA Islam. Silakan isi formulir secara lengkap dan ikuti instruksi alur pendaftaran.",
+      "targetRole": "ALL",
+      "createdAt": "2026-06-30T12:03:45.346Z"
+    },
+    {
+      "id": "ann-2",
+      "title": "Persyaratan Daftar Ulang Gelombang 1",
+      "content": "Bagi calon siswa yang telah dinyatakan Diterima, harap membawa dokumen asli (Kartu Keluarga, KTP Orang Tua, Akta Kelahiran, dan Surat Kelulusan/Ijazah sebelumnya) ke kantor sekretariat pendaftaran pada jam kerja (08:00 - 13:00 WIB).",
+      "targetRole": "PESERTA",
+      "createdAt": "2026-07-03T12:03:45.346Z"
+    }
+  ],
+  "logs": []
+}

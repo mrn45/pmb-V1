@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // SECURITY WARNING: 
+    // This app uses a custom NIK-based authentication flow (SPMB Online requirement)
+    // which cannot be implemented using Firebase Auth Email/Password because the provider is disabled.
+    // Therefore, the app uses a Client-Side mock API that intercepts requests and writes to Firestore.
+    // The rules are set to public read/write to allow the mock API to function.
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

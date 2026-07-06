@@ -1,0 +1,6 @@
+{
+  "name": "SPMB Online Yayasan Assyafiiyah",
+  "description": "Sistem Penerimaan Murid Baru (SPMB) Online Yayasan Assyafiiyah Tahun Pelajaran 2026/2027 untuk jenjang MDT, PAUD, SMP Islam, dan SMA Islam.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

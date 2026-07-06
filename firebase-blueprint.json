@@ -1,0 +1,141 @@
+{
+  "$schema": "https://raw.githubusercontent.com/google/aistudio-firebase-skill/main/schema.json",
+  "collections": [
+    {
+      "name": "users",
+      "schema": {
+        "id": "string",
+        "username": "string",
+        "role": "string",
+        "fullName": "string",
+        "jenjang": "string?",
+        "registrationId": "string?",
+        "createdAt": "string"
+      },
+      "rules": [
+        {
+          "allow": "read",
+          "condition": "request.auth != null && (request.auth.uid == resource.id || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'PANITIA'])"
+        },
+        {
+          "allow": "write",
+          "condition": "request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN'"
+        }
+      ]
+    },
+    {
+      "name": "registrations",
+      "schema": {
+        "id": "string",
+        "registrationNumber": "string",
+        "level": "string",
+        "nik": "string",
+        "nisn": "string?",
+        "fullName": "string",
+        "gender": "string",
+        "birthPlace": "string",
+        "birthDate": "string",
+        "religion": "string",
+        "address": "string",
+        "village": "string",
+        "district": "string",
+        "regency": "string",
+        "province": "string",
+        "postalCode": "string",
+        "parentPhone": "string",
+        "email": "string?",
+        "previousSchool": "string",
+        "schoolAddress": "string",
+        "fatherName": "string",
+        "fatherOccupation": "string",
+        "motherName": "string",
+        "motherOccupation": "string",
+        "siblings": "number",
+        "childOrder": "number",
+        "hasKip": "boolean",
+        "hasPkh": "boolean",
+        "status": "string",
+        "createdAt": "string",
+        "qrCodeUrl": "string?"
+      },
+      "rules": [
+        {
+          "allow": "read",
+          "condition": "request.auth != null"
+        },
+        {
+          "allow": "write",
+          "condition": "true"
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "schema": {
+        "id": "string",
+        "year": "string",
+        "gelombang": "string",
+        "statusActive": "boolean",
+        "quota": "map",
+        "logoUrl": "string?",
+        "ketuaPanitia": "string?",
+        "profilYayasan": "string?",
+        "kontakPanitia": "string?",
+        "facebookUrl": "string?",
+        "instagramUrl": "string?",
+        "youtubeUrl": "string?"
+      },
+      "rules": [
+        {
+          "allow": "read",
+          "condition": "true"
+        },
+        {
+          "allow": "write",
+          "condition": "request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN'"
+        }
+      ]
+    },
+    {
+      "name": "announcements",
+      "schema": {
+        "id": "string",
+        "title": "string",
+        "content": "string",
+        "targetRole": "string",
+        "createdAt": "string"
+      },
+      "rules": [
+        {
+          "allow": "read",
+          "condition": "true"
+        },
+        {
+          "allow": "write",
+          "condition": "request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'PANITIA']"
+        }
+      ]
+    },
+    {
+      "name": "logs",
+      "schema": {
+        "id": "string",
+        "timestamp": "string",
+        "username": "string",
+        "role": "string",
+        "action": "string",
+        "details": "string"
+      },
+      "rules": [
+        {
+          "allow": "read",
+          "condition": "request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'PANITIA']"
+        },
+        {
+          "allow": "write",
+          "condition": "request.auth != null"
+        }
+      ]
+    }
+  ]
+}
