@@ -486,20 +486,41 @@ export default function AdminDashboard({
 
     let csvContent = "data:text/csv;charset=utf-8,";
     // Header
-    csvContent += "No Pendaftaran,Jenjang,NIK,No KK,NISN,Nama Lengkap,Jenis Kelamin,Kabupaten,Desa,No HP,Sekolah Asal,Status,Tanggal Daftar\n";
+    csvContent += "No Pendaftaran,Jenjang,NIK,No KK,NISN,Nama Lengkap,Jenis Kelamin,Tanggal Lahir,Kabupaten,Desa,No HP,Sekolah Asal,Status,Tanggal Daftar\n";
 
     registrations.forEach(r => {
+      let formattedBirthDate = "-";
+      if (r.birthDate) {
+        // Handle YYYY-MM-DD or standard dates
+        const parts = r.birthDate.split('-');
+        if (parts.length === 3) {
+          formattedBirthDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else {
+          try {
+            const d = new Date(r.birthDate);
+            if (!isNaN(d.getTime())) {
+              formattedBirthDate = d.toLocaleDateString("id-ID", { day: '2-digit', month: '2-digit', year: 'numeric' });
+            } else {
+              formattedBirthDate = r.birthDate;
+            }
+          } catch(e) {
+            formattedBirthDate = r.birthDate;
+          }
+        }
+      }
+
       const row = [
         r.registrationNumber,
         r.level,
-        r.nik,
-        r.noKK || "-",
-        r.nisn || "-",
+        `="${r.nik}"`,
+        `="${r.noKK || "-"}"`,
+        `="${r.nisn || "-"}"`,
         `"${r.fullName.replace(/"/g, '""')}"`,
         r.gender,
-        r.regency,
-        r.village,
-        r.parentPhone,
+        formattedBirthDate,
+        `"${r.regency || "-"}"`,
+        `"${r.village || "-"}"`,
+        `="${r.parentPhone || "-"}"`,
         `"${(r.previousSchool || "-").replace(/"/g, '""')}"`,
         r.status,
         new Date(r.createdAt).toLocaleDateString("id-ID")
@@ -507,9 +528,10 @@ export default function AdminDashboard({
       csvContent += row + "\n";
     });
 
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent.replace("data:text/csv;charset=utf-8,", "")], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", url);
     link.setAttribute("download", `data_spmb_yayasan_assyafiiyah_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();

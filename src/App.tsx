@@ -41,6 +41,9 @@ export default function App() {
   const [printType, setPrintType] = useState<"BUKTI" | "KARTU" | "KELULUSAN" | null>(null);
   const [printReg, setPrintReg] = useState<Registration | null>(null);
 
+  // Success Popup state
+  const [successPopupReg, setSuccessPopupReg] = useState<Registration | null>(null);
+
   // Landing page data states
   const [sysSettings, setSysSettings] = useState<any>({
     year: "2026/2027",
@@ -297,11 +300,7 @@ export default function App() {
             <div className="w-full max-w-4xl">
               <RegistrationForm
                 onSuccess={(regData) => {
-                  // Post registration, redirect directly to Unified Login
-                  alert(`Pendaftaran Berhasil!\nSimpan Nomor NIK Anda (${regData.nik}) untuk masuk ke portal pendaftar.`);
-                  setLoginForm({ username: regData.nik, password: regData.nik });
-                  setLoginRole("PESERTA");
-                  setCurrentView("login");
+                  setSuccessPopupReg(regData);
                 }}
                 onCancel={() => setCurrentView("landing")}
               />
