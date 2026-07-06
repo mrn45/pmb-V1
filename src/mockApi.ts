@@ -177,8 +177,11 @@ export function setupMockApi() {
         if (pathname === '/api/stats' && method === 'GET') {
           const snap = await getDocs(collection(db, 'registrations'));
           let total = 0, mdt = 0, paud = 0, smpi = 0, smai = 0;
-          let statusCounts = { "Menunggu": 0, "Diverifikasi": 0, "Diterima": 0, "Tidak Diterima": 0 };
-          const recent = [];
+          let statusCounts: Record<string, number> = { "Menunggu": 0, "Diverifikasi": 0, "Diterima": 0, "Tidak Diterima": 0 };
+          let districtCounts: Record<string, number> = {};
+          let villageCounts: Record<string, number> = {};
+          let dailyTrendMap: Record<string, number> = {};
+          
           snap.forEach(d => {
             const r = d.data();
             total++;
@@ -187,15 +190,43 @@ export function setupMockApi() {
             if (r.level === 'SMPI') smpi++;
             if (r.level === 'SMAI') smai++;
             if (statusCounts[r.status] !== undefined) statusCounts[r.status]++;
-            recent.push(r);
+            
+            if (r.district) {
+              districtCounts[r.district] = (districtCounts[r.district] || 0) + 1;
+            }
+            if (r.village) {
+              villageCounts[r.village] = (villageCounts[r.village] || 0) + 1;
+            }
+            
+            if (r.createdAt) {
+              const dateObj = new Date(r.createdAt);
+              const day = dateObj.getDate().toString().padStart(2, '0');
+              const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+              const dateStr = `${day}/${month}`;
+              dailyTrendMap[dateStr] = (dailyTrendMap[dateStr] || 0) + 1;
+            }
           });
-          recent.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          
+          const dailyTrend = [];
+          for (let i = 9; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const day = d.getDate().toString().padStart(2, '0');
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            const dateStr = `${day}/${month}`;
+            dailyTrend.push({ date: dateStr, pendaftar: dailyTrendMap[dateStr] || 0 });
+          }
           
           return res(200, {
-            totalRegistrations: total,
-            byLevel: { MDT: mdt, PAUD: paud, SMPI: smpi, SMAI: smai },
-            recentRegistrations: recent.slice(0, 5),
-            statusCounts
+            total,
+            pending: statusCounts["Menunggu"],
+            verified: statusCounts["Diverifikasi"],
+            accepted: statusCounts["Diterima"],
+            rejected: statusCounts["Tidak Diterima"],
+            levelCounts: { MDT: mdt, PAUD: paud, SMPI: smpi, SMAI: smai },
+            districtCounts,
+            villageCounts,
+            dailyTrend
           });
         }
         
