@@ -20,8 +20,9 @@ export function setupMockApi() {
     value: async (...args: any[]) => {
 
     const url = typeof args[0] === 'string' ? args[0] : (args[0] as any).url;
+    const pathname = url.split('?')[0];
     
-    if (url.startsWith('/api/')) {
+    if (pathname.startsWith('/api/')) {
       const options = args[1] || {};
       const method = options.method || 'GET';
       const body = options.body ? JSON.parse(options.body as string) : null;
@@ -34,9 +35,9 @@ export function setupMockApi() {
       };
 
       try {
-        if (url === '/api/health') return res(200, { status: 'ok', vercel: false });
+        if (pathname === '/api/health') return res(200, { status: 'ok', vercel: false });
         
-        if (url === '/api/auth/login' && method === 'POST') {
+        if (pathname === '/api/auth/login' && method === 'POST') {
           const { username, password } = body;
           const snap = await getDocs(collection(db, 'users'));
           let user = null;
@@ -49,7 +50,7 @@ export function setupMockApi() {
           
           // Seed admin if no admin user exists and username is admin
           if (username === 'admin' && password === '51001n') {
-            const admin = { id: crypto.randomUUID(), username: 'admin', password: '51001n', role: 'ADMIN', fullName: 'Administrator', createdAt: new Date().toISOString() };
+            const admin = { id: Date.now().toString(36) + Math.random().toString(36).substring(2), username: 'admin', password: '51001n', role: 'ADMIN', fullName: 'Administrator', createdAt: new Date().toISOString() };
             await setDoc(doc(db, 'users', admin.id), admin);
             return res(200, { token: 'mock-token', user: admin });
           }
@@ -57,13 +58,13 @@ export function setupMockApi() {
 
         }
         
-        if (url === '/api/auth/me' && method === 'GET') {
+        if (pathname === '/api/auth/me' && method === 'GET') {
           const userStr = localStorage.getItem('spmb_user');
           if (userStr) return res(200, { user: JSON.parse(userStr) });
           return res(401, { message: 'Unauthorized' });
         }
 
-        if (url === '/api/auth/change-password' && method === 'POST') {
+        if (pathname === '/api/auth/change-password' && method === 'POST') {
            const { currentPassword, newPassword } = body;
            const userStr = localStorage.getItem('spmb_user');
            if (!userStr) return res(401, { message: 'Unauthorized' });
@@ -78,68 +79,68 @@ export function setupMockApi() {
            return res(400, { message: 'Password salah' });
         }
         
-        if (url === '/api/settings' && method === 'GET') {
+        if (pathname === '/api/settings' && method === 'GET') {
           const docSnap = await getDoc(doc(db, 'settings', 'system'));
           if (docSnap.exists()) return res(200, docSnap.data());
           return res(200, { year: "2026/2027", gelombang: "Gelombang 1", statusActive: true, quota: { MDT: 100, PAUD: 50, SMPI: 200, SMAI: 150 } });
         }
         
-        if (url === '/api/settings' && method === 'PUT') {
+        if (pathname === '/api/settings' && method === 'PUT') {
           await setDoc(doc(db, 'settings', 'system'), body, { merge: true });
           return res(200, { settings: body });
         }
 
-        if (url === '/api/announcements' && method === 'GET') {
+        if (pathname === '/api/announcements' && method === 'GET') {
           const snap = await getDocs(collection(db, 'announcements'));
           const anns = [];
           snap.forEach(d => anns.push(d.data()));
           return res(200, anns.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
         }
 
-        if (url === '/api/announcements' && method === 'POST') {
-          const ann = { ...body, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+        if (pathname === '/api/announcements' && method === 'POST') {
+          const ann = { ...body, id: Date.now().toString(36) + Math.random().toString(36).substring(2), createdAt: new Date().toISOString() };
           await setDoc(doc(db, 'announcements', ann.id), ann);
           return res(201, { announcement: ann });
         }
 
-        if (url.startsWith('/api/announcements/') && method === 'DELETE') {
-          const id = url.split('/').pop();
+        if (pathname.startsWith('/api/announcements/') && method === 'DELETE') {
+          const id = pathname.split('/').pop();
           await deleteDoc(doc(db, 'announcements', id));
           return res(200, { message: 'Deleted' });
         }
 
-        if (url === '/api/users' && method === 'GET') {
+        if (pathname === '/api/users' && method === 'GET') {
           const snap = await getDocs(collection(db, 'users'));
           const users = [];
           snap.forEach(d => users.push(d.data()));
           return res(200, users);
         }
 
-        if (url === '/api/users' && method === 'POST') {
-          const u = { ...body, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+        if (pathname === '/api/users' && method === 'POST') {
+          const u = { ...body, id: Date.now().toString(36) + Math.random().toString(36).substring(2), createdAt: new Date().toISOString() };
           await setDoc(doc(db, 'users', u.id), u);
           return res(201, { user: u });
         }
 
-        if (url.startsWith('/api/users/') && method === 'DELETE') {
-          const id = url.split('/').pop();
+        if (pathname.startsWith('/api/users/') && method === 'DELETE') {
+          const id = pathname.split('/').pop();
           await deleteDoc(doc(db, 'users', id));
           return res(200, { message: 'Deleted' });
         }
         
-        if (url === '/api/registrations' && method === 'GET') {
+        if (pathname === '/api/registrations' && method === 'GET') {
           const snap = await getDocs(collection(db, 'registrations'));
           const regs = [];
           snap.forEach(d => regs.push(d.data()));
-          return res(200, regs);
+          return res(200, { data: regs, totalPages: 1, total: regs.length });
         }
         
-        if (url === '/api/registrations' && method === 'POST') {
-          const newReg = { ...body, id: crypto.randomUUID(), createdAt: new Date().toISOString(), status: 'Menunggu', registrationNumber: 'REG-' + Date.now() };
+        if (pathname === '/api/registrations' && method === 'POST') {
+          const newReg = { ...body, id: Date.now().toString(36) + Math.random().toString(36).substring(2), createdAt: new Date().toISOString(), status: 'Menunggu', registrationNumber: 'REG-' + Date.now() };
           await setDoc(doc(db, 'registrations', newReg.id), newReg);
           
           const newUser = {
-            id: crypto.randomUUID(),
+            id: Date.now().toString(36) + Math.random().toString(36).substring(2),
             username: newReg.nik,
             password: newReg.nik, // Default password is NIK
             role: 'PESERTA',
@@ -152,28 +153,28 @@ export function setupMockApi() {
           return res(201, { message: 'Success', registration: newReg, user: newUser });
         }
 
-        if (url.match(/\/api\/registrations\/[^\/]+$/) && method === 'GET') {
-          const id = url.split('/').pop();
+        if (pathname.match(/\/api\/registrations\/[^\/]+$/) && method === 'GET') {
+          const id = pathname.split('/').pop();
           const docSnap = await getDoc(doc(db, 'registrations', id));
           if (docSnap.exists()) return res(200, docSnap.data());
           return res(404, { message: 'Not found' });
         }
 
-        if (url.match(/\/api\/registrations\/[^\/]+$/) && method === 'PUT') {
-          const id = url.split('/').pop();
+        if (pathname.match(/\/api\/registrations\/[^\/]+$/) && method === 'PUT') {
+          const id = pathname.split('/').pop();
           const docRef = doc(db, 'registrations', id);
           await updateDoc(docRef, body);
           const docSnap = await getDoc(docRef);
           return res(200, { registration: docSnap.data() });
         }
 
-        if (url.match(/\/api\/registrations\/[^\/]+\/status$/) && method === 'PUT') {
-          const id = url.split('/')[3];
+        if (pathname.match(/\/api\/registrations\/[^\/]+\/status$/) && method === 'PUT') {
+          const id = pathname.split('/')[3];
           await updateDoc(doc(db, 'registrations', id), { status: body.status });
           return res(200, { message: 'Updated' });
         }
 
-        if (url === '/api/stats' && method === 'GET') {
+        if (pathname === '/api/stats' && method === 'GET') {
           const snap = await getDocs(collection(db, 'registrations'));
           let total = 0, mdt = 0, paud = 0, smpi = 0, smai = 0;
           let statusCounts = { "Menunggu": 0, "Diverifikasi": 0, "Diterima": 0, "Tidak Diterima": 0 };
@@ -198,7 +199,7 @@ export function setupMockApi() {
           });
         }
         
-        if (url === '/api/logs' && method === 'GET') {
+        if (pathname === '/api/logs' && method === 'GET') {
            return res(200, []);
         }
 
