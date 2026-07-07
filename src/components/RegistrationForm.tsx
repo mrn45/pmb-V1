@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowLeft,
@@ -33,42 +33,67 @@ export default function RegistrationForm({
   onSuccess,
   onCancel
 }: RegistrationFormProps) {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => {
+    const saved = sessionStorage.getItem("spmb_registration_step");
+    return saved ? parseInt(saved, 10) : 1;
+  });
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
   // Form State
-  const [formData, setFormData] = useState({
-    level: initialLevel || Jenjang.SMPI,
-    nik: "",
-    noKK: "",
-    nisn: "",
-    fullName: "",
-    gender: "Laki-laki" as "Laki-laki" | "Perempuan",
-    birthPlace: "",
-    birthDate: "",
-    religion: "Islam",
-    address: "",
-    village: "",
-    district: "Lenteng",
-    regency: "Sumenep",
-    province: "Jawa Timur",
-    postalCode: "",
-    parentPhone: "",
-    email: "",
-    previousSchool: "",
-    schoolAddress: "",
-    ijazahNumber: "",
-    fatherName: "",
-    fatherOccupation: "",
-    motherName: "",
-    motherOccupation: "",
-    siblings: "0",
-    childOrder: "1",
-    hasKip: false,
-    hasPkh: false,
-    agree: false
+  const [formData, setFormData] = useState(() => {
+    const saved = sessionStorage.getItem("spmb_registration_data");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (initialLevel && parsed.level !== initialLevel) {
+          parsed.level = initialLevel;
+        }
+        return parsed;
+      } catch (err) {
+        console.error("Failed to parse saved registration data");
+      }
+    }
+    return {
+      level: initialLevel || Jenjang.SMPI,
+      nik: "",
+      noKK: "",
+      nisn: "",
+      fullName: "",
+      gender: "Laki-laki" as "Laki-laki" | "Perempuan",
+      birthPlace: "",
+      birthDate: "",
+      religion: "Islam",
+      address: "",
+      village: "",
+      district: "Lenteng",
+      regency: "Sumenep",
+      province: "Jawa Timur",
+      postalCode: "",
+      parentPhone: "",
+      email: "",
+      previousSchool: "",
+      schoolAddress: "",
+      ijazahNumber: "",
+      fatherName: "",
+      fatherOccupation: "",
+      motherName: "",
+      motherOccupation: "",
+      siblings: "0",
+      childOrder: "1",
+      hasKip: false,
+      hasPkh: false,
+      agree: false
+    };
   });
+
+  useEffect(() => {
+    sessionStorage.setItem("spmb_registration_step", currentStep.toString());
+  }, [currentStep]);
+
+  useEffect(() => {
+    sessionStorage.setItem("spmb_registration_data", JSON.stringify(formData));
+  }, [formData]);
 
   // Client Validation Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -259,6 +284,9 @@ export default function RegistrationForm({
       if (!response.ok) {
         throw new Error(resData.message || "Gagal menyimpan data pendaftaran.");
       }
+
+      sessionStorage.removeItem("spmb_registration_step");
+      sessionStorage.removeItem("spmb_registration_data");
 
       onSuccess(resData.registration);
     } catch (err: any) {
