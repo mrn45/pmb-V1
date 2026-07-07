@@ -492,7 +492,7 @@ export default function AdminDashboard({
 
     let csvContent = "data:text/csv;charset=utf-8,";
     // Header
-    csvContent += "No Pendaftaran,Jenjang,NIK,No KK,NISN,Nama Lengkap,Jenis Kelamin,Tanggal Lahir,Kabupaten,Desa,No HP,Sekolah Asal,Status,Tanggal Daftar\n";
+    csvContent += "No Pendaftaran,Jenjang,NIK,No KK,NISN,Nama Lengkap,Jenis Kelamin,Tanggal Lahir,Kabupaten,Desa,No HP,Sekolah Asal,Nomor Ijazah,Status,Tanggal Daftar\n";
 
     registrations.forEach(r => {
       let formattedBirthDate = "-";
@@ -528,6 +528,7 @@ export default function AdminDashboard({
         `"${r.village || "-"}"`,
         `="${r.parentPhone || "-"}"`,
         `"${(r.previousSchool || "-").replace(/"/g, '""')}"`,
+        `="${r.ijazahNumber || "-"}"`,
         r.status,
         new Date(r.createdAt).toLocaleDateString("id-ID")
       ].join(",");
@@ -1847,10 +1848,18 @@ export default function AdminDashboard({
                       <span className="font-semibold text-slate-800">{selectedReg.email}</span>
                     </div>
                   )}
-                  <div>
-                    <span className="block text-[10px] font-bold text-slate-400 uppercase">Sekolah Asal</span>
-                    <span className="font-semibold text-slate-800">{selectedReg.previousSchool || "-"}</span>
-                  </div>
+                  {selectedReg.level !== Jenjang.PAUD && (
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-400 uppercase">Sekolah Asal</span>
+                      <span className="font-semibold text-slate-800">{selectedReg.previousSchool || "-"}</span>
+                    </div>
+                  )}
+                  {(selectedReg.level === Jenjang.SMPI || selectedReg.level === Jenjang.SMAI) && selectedReg.ijazahNumber && (
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-400 uppercase">Nomor Ijazah</span>
+                      <span className="font-semibold text-slate-800">{selectedReg.ijazahNumber}</span>
+                    </div>
+                  )}
                   <div className="sm:col-span-2">
                     <span className="block text-[10px] font-bold text-slate-400 uppercase">Alamat Lengkap</span>
                     <span className="font-semibold text-slate-800 uppercase">

@@ -23,7 +23,7 @@ import {
   Menu,
   X
 } from "lucide-react";
-import { User as UserType, Registration, StatusPendaftaran, Announcement } from "../types.js";
+import { User as UserType, Registration, StatusPendaftaran, Announcement, Jenjang } from "../types.js";
 import { BismillahCalligraphy, IslamicDivider, IslamicCorners, RubElHizb } from "./IslamicOrnaments.js";
 
 interface PesertaDashboardProps {
@@ -554,16 +554,32 @@ export default function PesertaDashboard({
                 </div>
 
                 {/* School */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Sekolah Asal</label>
-                  <input
-                    disabled={!editMode}
-                    type="text"
-                    value={profileForm?.previousSchool || ""}
-                    onChange={(e) => setProfileForm({ ...profileForm, previousSchool: e.target.value })}
-                    className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-100 disabled:text-slate-500"
-                  />
-                </div>
+                {profileForm?.level !== Jenjang.PAUD && (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Sekolah Asal</label>
+                    <input
+                      disabled={!editMode}
+                      type="text"
+                      value={profileForm?.previousSchool || ""}
+                      onChange={(e) => setProfileForm({ ...profileForm, previousSchool: e.target.value })}
+                      className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-100 disabled:text-slate-500"
+                    />
+                  </div>
+                )}
+
+                {/* Ijazah */}
+                {(profileForm?.level === Jenjang.SMPI || profileForm?.level === Jenjang.SMAI) && (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Nomor Ijazah (Opsional)</label>
+                    <input
+                      disabled={!editMode}
+                      type="text"
+                      value={profileForm?.ijazahNumber || ""}
+                      onChange={(e) => setProfileForm({ ...profileForm, ijazahNumber: e.target.value })}
+                      className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-100 disabled:text-slate-500"
+                    />
+                  </div>
+                )}
 
                 {/* Address */}
                 <div className="md:col-span-2">

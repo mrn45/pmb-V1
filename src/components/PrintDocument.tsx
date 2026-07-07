@@ -207,10 +207,18 @@ export default function PrintDocument({
                   <span className="block text-[10px] uppercase font-bold text-slate-400">Nomor HP Orang Tua:</span>
                   <span className="font-bold text-slate-900">{registration.parentPhone}</span>
                 </div>
-                <div>
-                  <span className="block text-[10px] uppercase font-bold text-slate-400">Sekolah Asal:</span>
-                  <span className="font-semibold text-slate-800">{registration.previousSchool || "-"}</span>
-                </div>
+                {registration.level !== Jenjang.PAUD && (
+                  <div>
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Sekolah Asal:</span>
+                    <span className="font-semibold text-slate-800">{registration.previousSchool || "-"}</span>
+                  </div>
+                )}
+                {(registration.level === Jenjang.SMPI || registration.level === Jenjang.SMAI) && registration.ijazahNumber && (
+                  <div>
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Nomor Ijazah:</span>
+                    <span className="font-semibold text-slate-800">{registration.ijazahNumber}</span>
+                  </div>
+                )}
                 <div className="sm:col-span-2">
                   <span className="block text-[10px] uppercase font-bold text-slate-400">Alamat Tempat Tinggal:</span>
                   <span className="font-semibold text-slate-800 uppercase">

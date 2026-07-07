@@ -56,6 +56,7 @@ export interface Registration {
   email?: string;
   previousSchool: string;
   schoolAddress: string;
+  ijazahNumber?: string;
   fatherName: string;
   fatherOccupation: string;
   motherName: string;

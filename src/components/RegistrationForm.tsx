@@ -56,6 +56,7 @@ export default function RegistrationForm({
     email: "",
     previousSchool: "",
     schoolAddress: "",
+    ijazahNumber: "",
     fatherName: "",
     fatherOccupation: "",
     motherName: "",
@@ -688,35 +689,56 @@ export default function RegistrationForm({
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Sekolah Asal */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
-                  Nama Sekolah Asal / TK / PAUD
-                </label>
-                <input
-                  type="text"
-                  name="previousSchool"
-                  value={formData.previousSchool}
-                  onChange={handleInputChange}
-                  placeholder="Masukkan nama sekolah sebelumnya"
-                  className="w-full text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
-                />
-              </div>
+              {/* Sekolah Asal (Not for PAUD) */}
+              {formData.level !== Jenjang.PAUD && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
+                      Nama Sekolah Asal TK/SD/SMP
+                    </label>
+                    <input
+                      type="text"
+                      name="previousSchool"
+                      value={formData.previousSchool}
+                      onChange={handleInputChange}
+                      placeholder="Masukkan nama sekolah sebelumnya"
+                      className="w-full text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                    />
+                  </div>
 
-              {/* Alamat Sekolah Asal */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
-                  Alamat Sekolah Asal
-                </label>
-                <input
-                  type="text"
-                  name="schoolAddress"
-                  value={formData.schoolAddress}
-                  onChange={handleInputChange}
-                  placeholder="Kabupaten/Kota asal sekolah"
-                  className="w-full text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
-                />
-              </div>
+                  {/* Alamat Sekolah Asal */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
+                      Alamat Sekolah Asal
+                    </label>
+                    <input
+                      type="text"
+                      name="schoolAddress"
+                      value={formData.schoolAddress}
+                      onChange={handleInputChange}
+                      placeholder="Kabupaten/Kota asal sekolah"
+                      className="w-full text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Nomor Ijazah (SMP/SMA Only) */}
+              {(formData.level === Jenjang.SMPI || formData.level === Jenjang.SMAI) && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
+                    Nomor Ijazah <span className="text-slate-400 normal-case font-normal">(Opsional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="ijazahNumber"
+                    value={formData.ijazahNumber}
+                    onChange={handleInputChange}
+                    placeholder="Masukkan Nomor Ijazah"
+                    className="w-full text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                  />
+                </div>
+              )}
 
               {/* Nama Ayah */}
               <div>
@@ -868,10 +890,18 @@ export default function RegistrationForm({
                   <span className="block text-[10px] uppercase font-bold text-slate-400">Nama Ayah / Ibu:</span>
                   <span className="font-semibold text-slate-700">{formData.fatherName} / {formData.motherName}</span>
                 </div>
-                <div>
-                  <span className="block text-[10px] uppercase font-bold text-slate-400">Sekolah Asal:</span>
-                  <span className="font-semibold text-slate-700">{formData.previousSchool || "-"}</span>
-                </div>
+                {formData.level !== Jenjang.PAUD && (
+                  <div>
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Sekolah Asal:</span>
+                    <span className="font-semibold text-slate-700">{formData.previousSchool || "-"}</span>
+                  </div>
+                )}
+                {(formData.level === Jenjang.SMPI || formData.level === Jenjang.SMAI) && formData.ijazahNumber && (
+                  <div>
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Nomor Ijazah:</span>
+                    <span className="font-semibold text-slate-700">{formData.ijazahNumber}</span>
+                  </div>
+                )}
               </div>
             </div>
 
