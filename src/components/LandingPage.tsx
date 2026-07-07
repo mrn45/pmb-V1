@@ -50,9 +50,49 @@ export default function LandingPage({
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [activeGelombangTab, setActiveGelombangTab] = useState<"G1" | "G2">(
-    settings.gelombang?.toLowerCase().includes("gelombang 2") || settings.gelombang?.toLowerCase().includes("g2") ? "G2" : "G1"
-  );
+
+  const defaultGelombangs = [
+    {
+      id: "g1",
+      name: "Gelombang 1",
+      pendaftaran: settings.g1Pendaftaran || `1 Maret – 30 April ${settings.year}`,
+      verifikasi: settings.g1Verifikasi || `1 Mei – 3 Mei ${settings.year}`,
+      pengumuman: settings.g1Pengumuman || `5 Mei ${settings.year}`,
+      daftarUlang: settings.g1DaftarUlang || `6 Mei – 12 Mei ${settings.year}`,
+    },
+    {
+      id: "g2",
+      name: "Gelombang 2",
+      pendaftaran: settings.g2Pendaftaran || `1 Mei – 30 Juni ${settings.year}`,
+      verifikasi: settings.g2Verifikasi || `1 Juli – 3 Juli ${settings.year}`,
+      pengumuman: settings.g2Pengumuman || `5 Juli ${settings.year}`,
+      daftarUlang: settings.g2DaftarUlang || `6 Juli – 12 Juli ${settings.year}`,
+    }
+  ];
+
+  const waves = (settings.gelombangList && settings.gelombangList.length > 0) 
+    ? settings.gelombangList 
+    : defaultGelombangs;
+
+  const [activeGelombangId, setActiveGelombangId] = useState<string>("");
+
+  useEffect(() => {
+    if (waves.length > 0) {
+      const currentWaveName = settings.gelombang || "Gelombang 1";
+      const matched = waves.find(w => 
+        w.name.toLowerCase().includes(currentWaveName.toLowerCase()) || 
+        currentWaveName.toLowerCase().includes(w.name.toLowerCase()) ||
+        w.id === currentWaveName
+      );
+      if (matched) {
+        setActiveGelombangId(matched.id);
+      } else if (!activeGelombangId || !waves.some(w => w.id === activeGelombangId)) {
+        setActiveGelombangId(waves[0].id);
+      }
+    }
+  }, [settings.gelombang, settings.gelombangList, settings.year]);
+
+  const selectedWave = waves.find(w => w.id === activeGelombangId) || waves[0];
 
   // Scroll Progress and Back To Top
   useEffect(() => {
@@ -185,7 +225,9 @@ export default function LandingPage({
               <button onClick={() => scrollToSection("profil")} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Profil</button>
               <button onClick={() => scrollToSection("jenjang")} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Jenjang</button>
               <button onClick={() => scrollToSection("alur")} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Alur</button>
-              <button onClick={() => scrollToSection("jadwal")} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Jadwal</button>
+              {settings.showJadwal !== false && (
+                <button onClick={() => scrollToSection("jadwal")} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Jadwal</button>
+              )}
               <button onClick={() => scrollToSection("persyaratan")} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Persyaratan</button>
               <button onClick={() => scrollToSection("faq")} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">FAQ</button>
               <button onClick={() => scrollToSection("kontak")} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Kontak</button>
@@ -220,7 +262,9 @@ export default function LandingPage({
             <button onClick={() => scrollToSection("profil")} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-primary/10 hover:text-primary">Profil</button>
             <button onClick={() => scrollToSection("jenjang")} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-primary/10 hover:text-primary">Jenjang</button>
             <button onClick={() => scrollToSection("alur")} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-primary/10 hover:text-primary">Alur</button>
-            <button onClick={() => scrollToSection("jadwal")} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-primary/10 hover:text-primary">Jadwal</button>
+            {settings.showJadwal !== false && (
+              <button onClick={() => scrollToSection("jadwal")} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-primary/10 hover:text-primary">Jadwal</button>
+            )}
             <button onClick={() => scrollToSection("persyaratan")} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-primary/10 hover:text-primary">Persyaratan</button>
             <button onClick={() => scrollToSection("faq")} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-primary/10 hover:text-primary">FAQ</button>
             <button onClick={() => scrollToSection("kontak")} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-primary/10 hover:text-primary">Kontak</button>
@@ -526,173 +570,163 @@ export default function LandingPage({
       </section>
 
       {/* Timeline Seleksi / Jadwal Penting Section */}
-      <section id="jadwal" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/50 transition-colors">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-accent uppercase tracking-widest text-sm font-bold font-cairo">Agenda Penting</span>
-            <h2 className="text-3xl sm:text-4xl font-cairo font-extrabold mt-2 text-primary">Timeline & Jadwal Seleksi</h2>
-            <IslamicDivider className="mt-4 max-w-md mx-auto" />
-            <p className="mt-4 text-slate-500">
-              Perhatikan tenggat waktu dan jadwal pelaksanaan penerimaan murid baru Tahun Pelajaran <span className="text-primary font-bold">{settings.year}</span> agar tidak terlewatkan setiap tahapannya.
-            </p>
-          </div>
-
-          {/* Gelombang Tabs & Active Wave Indicator */}
-          <div className="flex flex-col items-center gap-4 mb-12">
-            <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
-              <button
-                onClick={() => setActiveGelombangTab("G1")}
-                className={`px-6 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
-                  activeGelombangTab === "G1"
-                    ? "bg-primary text-white shadow-md"
-                    : "text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <span>Gelombang 1</span>
-                {(settings.gelombang?.toLowerCase().includes("1") || !settings.gelombang?.toLowerCase().includes("2")) && (
-                  <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveGelombangTab("G2")}
-                className={`px-6 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
-                  activeGelombangTab === "G2"
-                    ? "bg-primary text-white shadow-md"
-                    : "text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <span>Gelombang 2</span>
-                {settings.gelombang?.toLowerCase().includes("2") && (
-                  <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-                )}
-              </button>
+      {settings.showJadwal !== false && (
+        <section id="jadwal" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/50 transition-colors">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <span className="text-accent uppercase tracking-widest text-sm font-bold font-cairo">Agenda Penting</span>
+              <h2 className="text-3xl sm:text-4xl font-cairo font-extrabold mt-2 text-primary">Timeline & Jadwal Seleksi</h2>
+              <IslamicDivider className="mt-4 max-w-md mx-auto" />
+              <p className="mt-4 text-slate-500">
+                Perhatikan tenggat waktu dan jadwal pelaksanaan penerimaan murid baru Tahun Pelajaran <span className="text-primary font-bold">{settings.year}</span> agar tidak terlewatkan setiap tahapannya.
+              </p>
             </div>
 
-            {/* Sub-label showing current active wave from system settings */}
-            <div className="text-xs text-slate-500 font-semibold bg-primary/5 py-1.5 px-4 rounded-full border border-primary/10 flex items-center gap-2">
-              <span className="inline-block w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
-              <span>Gelombang Aktif Sistem Saat Ini: <strong className="text-primary uppercase font-bold">{settings.gelombang || "Gelombang 1"}</strong></span>
-            </div>
-          </div>
-
-          {/* Interactive Timeline Body */}
-          <div className="relative max-w-3xl mx-auto">
-            {/* Center line */}
-            <div className="absolute left-6 md:left-1/2 top-4 bottom-4 w-0.5 bg-slate-200 -translate-x-1/2 z-0" />
-
-            <div className="space-y-12">
-              {/* STAGE 1 */}
-              <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-8 z-10">
-                {/* Connector Node */}
-                <div className="absolute left-6 md:left-1/2 w-12 h-12 bg-white rounded-full border-4 border-primary flex items-center justify-center -translate-x-1/2 z-20 shadow-md transform hover:scale-110 transition-transform">
-                  <Calendar className="w-5 h-5 text-primary" />
+            {/* Gelombang Tabs & Active Wave Indicator */}
+            {waves.length > 1 && (
+              <div className="flex flex-col items-center gap-4 mb-12">
+                <div className="flex flex-wrap gap-2 justify-center p-1 bg-slate-100 rounded-xl border border-slate-200">
+                  {waves.map((w) => {
+                    const isSystemActive = settings.gelombang?.toLowerCase().includes(w.name.toLowerCase()) || 
+                      w.name.toLowerCase().includes(settings.gelombang?.toLowerCase() || "");
+                    return (
+                      <button
+                        key={w.id}
+                        onClick={() => setActiveGelombangId(w.id)}
+                        className={`px-5 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
+                          activeGelombangId === w.id
+                            ? "bg-primary text-white shadow-md"
+                            : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        <span>{w.name}</span>
+                        {isSystemActive && (
+                          <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* Left Card: Gelombang 1 or Gelombang 2 info */}
-                <div className="w-full md:w-[45%] pl-14 md:pl-0 md:text-right">
-                  <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-hover hover:-translate-y-0.5 transition-all">
-                    <IslamicCorners />
-                    <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary font-bold text-[10px] rounded uppercase mb-2">Tahap 1</span>
-                    <h3 className="text-base font-cairo font-bold text-slate-900">Pendaftaran & Formulir Online</h3>
-                    <p className="text-xs font-semibold text-accent mt-1">
-                      {activeGelombangTab === "G1"
-                        ? (settings.g1Pendaftaran || `1 Maret – 30 April ${settings.year}`)
-                        : (settings.g2Pendaftaran || `1 Mei – 30 Juni ${settings.year}`)}
-                    </p>
-                    <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-                      Calon murid baru mendaftarkan akun secara mandiri lewat portal online, melengkapi data diri, profil keluarga, dan memilih jenjang pendidikan.
-                    </p>
-                  </div>
+                {/* Sub-label showing current active wave from system settings */}
+                <div className="text-xs text-slate-500 font-semibold bg-primary/5 py-1.5 px-4 rounded-full border border-primary/10 flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
+                  <span>Gelombang Aktif Sistem Saat Ini: <strong className="text-primary uppercase font-bold">{settings.gelombang || "Gelombang 1"}</strong></span>
                 </div>
-
-                {/* Empty block for layout alignment on desktop */}
-                <div className="hidden md:block w-[45%]" />
               </div>
+            )}
 
-              {/* STAGE 2 */}
-              <div className="relative flex flex-col md:flex-row-reverse items-start md:items-center justify-between gap-4 md:gap-8 z-10">
-                {/* Connector Node */}
-                <div className="absolute left-6 md:left-1/2 w-12 h-12 bg-white rounded-full border-4 border-primary flex items-center justify-center -translate-x-1/2 z-20 shadow-md transform hover:scale-110 transition-transform">
-                  <FileText className="w-5 h-5 text-primary" />
-                </div>
+            {/* Interactive Timeline Body */}
+            <div className="relative max-w-3xl mx-auto">
+              {/* Center line */}
+              <div className="absolute left-6 md:left-1/2 top-4 bottom-4 w-0.5 bg-slate-200 -translate-x-1/2 z-0" />
 
-                {/* Right Card */}
-                <div className="w-full md:w-[45%] pl-14 md:pl-0 text-left">
-                  <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-hover hover:-translate-y-0.5 transition-all">
-                    <IslamicCorners />
-                    <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary font-bold text-[10px] rounded uppercase mb-2">Tahap 2</span>
-                    <h3 className="text-base font-cairo font-bold text-slate-900">Seleksi Berkas & Verifikasi</h3>
-                    <p className="text-xs font-semibold text-accent mt-1">
-                      {activeGelombangTab === "G1"
-                        ? (settings.g1Verifikasi || `1 Mei – 3 Mei ${settings.year}`)
-                        : (settings.g2Verifikasi || `1 Juli – 3 Juli ${settings.year}`)}
-                    </p>
-                    <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-                      Panitia pendaftaran menyeleksi dan memverifikasi kelengkapan administrasi calon pendaftar sesuai kuota pendaftaran masing-masing jenjang.
-                    </p>
+              <div className="space-y-12">
+                {/* STAGE 1 */}
+                <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-8 z-10">
+                  {/* Connector Node */}
+                  <div className="absolute left-6 md:left-1/2 w-12 h-12 bg-white rounded-full border-4 border-primary flex items-center justify-center -translate-x-1/2 z-20 shadow-md transform hover:scale-110 transition-transform">
+                    <Calendar className="w-5 h-5 text-primary" />
                   </div>
-                </div>
 
-                <div className="hidden md:block w-[45%]" />
-              </div>
-
-              {/* STAGE 3 */}
-              <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-8 z-10">
-                {/* Connector Node */}
-                <div className="absolute left-6 md:left-1/2 w-12 h-12 bg-white rounded-full border-4 border-primary flex items-center justify-center -translate-x-1/2 z-20 shadow-md transform hover:scale-110 transition-transform">
-                  <CheckCircle className="w-5 h-5 text-primary" />
-                </div>
-
-                {/* Left Card */}
-                <div className="w-full md:w-[45%] pl-14 md:pl-0 md:text-right">
-                  <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-hover hover:-translate-y-0.5 transition-all">
-                    <IslamicCorners />
-                    <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary font-bold text-[10px] rounded uppercase mb-2">Tahap 3</span>
-                    <h3 className="text-base font-cairo font-bold text-slate-900">Pengumuman Kelulusan</h3>
-                    <p className="text-xs font-semibold text-accent mt-1">
-                      {activeGelombangTab === "G1"
-                        ? (settings.g1Pengumuman || `5 Mei ${settings.year}`)
-                        : (settings.g2Pengumuman || `5 Juli ${settings.year}`)}
-                    </p>
-                    <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-                      Status penerimaan langsung diumumkan secara realtime melalui Dashboard Peserta masing-masing calon siswa (menggunakan username & password NIK pendaftar).
-                    </p>
+                  {/* Left Card: Gelombang info */}
+                  <div className="w-full md:w-[45%] pl-14 md:pl-0 md:text-right">
+                    <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-hover hover:-translate-y-0.5 transition-all">
+                      <IslamicCorners />
+                      <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary font-bold text-[10px] rounded uppercase mb-2">Tahap 1</span>
+                      <h3 className="text-base font-cairo font-bold text-slate-900">Pendaftaran & Formulir Online</h3>
+                      <p className="text-xs font-semibold text-accent mt-1">
+                        {selectedWave.pendaftaran}
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                        Calon murid baru mendaftarkan akun secara mandiri lewat portal online, melengkapi data diri, profil keluarga, dan memilih jenjang pendidikan.
+                      </p>
+                    </div>
                   </div>
+
+                  {/* Empty block for layout alignment on desktop */}
+                  <div className="hidden md:block w-[45%]" />
                 </div>
 
-                <div className="hidden md:block w-[45%]" />
-              </div>
-
-              {/* STAGE 4 */}
-              <div className="relative flex flex-col md:flex-row-reverse items-start md:items-center justify-between gap-4 md:gap-8 z-10">
-                {/* Connector Node */}
-                <div className="absolute left-6 md:left-1/2 w-12 h-12 bg-white rounded-full border-4 border-primary flex items-center justify-center -translate-x-1/2 z-20 shadow-md transform hover:scale-110 transition-transform">
-                  <Clock className="w-5 h-5 text-primary" />
-                </div>
-
-                {/* Right Card */}
-                <div className="w-full md:w-[45%] pl-14 md:pl-0 text-left">
-                  <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-hover hover:-translate-y-0.5 transition-all">
-                    <IslamicCorners />
-                    <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary font-bold text-[10px] rounded uppercase mb-2">Tahap 4</span>
-                    <h3 className="text-base font-cairo font-bold text-slate-900">Daftar Ulang Fisik</h3>
-                    <p className="text-xs font-semibold text-accent mt-1">
-                      {activeGelombangTab === "G1"
-                        ? (settings.g1DaftarUlang || `6 Mei – 12 Mei ${settings.year}`)
-                        : (settings.g2DaftarUlang || `6 Juli – 12 Juli ${settings.year}`)}
-                    </p>
-                    <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-                      Peserta yang dinyatakan Lulus membawa lembar cetak bukti pendaftaran beserta dokumen fisik (KK, Akta, KTP, Surat Kelulusan) asli ke Sekretariat Yayasan.
-                    </p>
+                {/* STAGE 2 */}
+                <div className="relative flex flex-col md:flex-row-reverse items-start md:items-center justify-between gap-4 md:gap-8 z-10">
+                  {/* Connector Node */}
+                  <div className="absolute left-6 md:left-1/2 w-12 h-12 bg-white rounded-full border-4 border-primary flex items-center justify-center -translate-x-1/2 z-20 shadow-md transform hover:scale-110 transition-transform">
+                    <FileText className="w-5 h-5 text-primary" />
                   </div>
+
+                  {/* Right Card */}
+                  <div className="w-full md:w-[45%] pl-14 md:pl-0 text-left">
+                    <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-hover hover:-translate-y-0.5 transition-all">
+                      <IslamicCorners />
+                      <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary font-bold text-[10px] rounded uppercase mb-2">Tahap 2</span>
+                      <h3 className="text-base font-cairo font-bold text-slate-900">Seleksi Berkas & Verifikasi</h3>
+                      <p className="text-xs font-semibold text-accent mt-1">
+                        {selectedWave.verifikasi}
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                        Panitia pendaftaran menyeleksi dan memverifikasi kelengkapan administrasi calon pendaftar sesuai kuota pendaftaran masing-masing jenjang.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="hidden md:block w-[45%]" />
                 </div>
 
-                <div className="hidden md:block w-[45%]" />
+                {/* STAGE 3 */}
+                <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-8 z-10">
+                  {/* Connector Node */}
+                  <div className="absolute left-6 md:left-1/2 w-12 h-12 bg-white rounded-full border-4 border-primary flex items-center justify-center -translate-x-1/2 z-20 shadow-md transform hover:scale-110 transition-transform">
+                    <CheckCircle className="w-5 h-5 text-primary" />
+                  </div>
+
+                  {/* Left Card */}
+                  <div className="w-full md:w-[45%] pl-14 md:pl-0 md:text-right">
+                    <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-hover hover:-translate-y-0.5 transition-all">
+                      <IslamicCorners />
+                      <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary font-bold text-[10px] rounded uppercase mb-2">Tahap 3</span>
+                      <h3 className="text-base font-cairo font-bold text-slate-900">Pengumuman Kelulusan</h3>
+                      <p className="text-xs font-semibold text-accent mt-1">
+                        {selectedWave.pengumuman}
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                        Status penerimaan langsung diumumkan secara realtime melalui Dashboard Peserta masing-masing calon siswa (menggunakan username & password NIK pendaftar).
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="hidden md:block w-[45%]" />
+                </div>
+
+                {/* STAGE 4 */}
+                <div className="relative flex flex-col md:flex-row-reverse items-start md:items-center justify-between gap-4 md:gap-8 z-10">
+                  {/* Connector Node */}
+                  <div className="absolute left-6 md:left-1/2 w-12 h-12 bg-white rounded-full border-4 border-primary flex items-center justify-center -translate-x-1/2 z-20 shadow-md transform hover:scale-110 transition-transform">
+                    <Clock className="w-5 h-5 text-primary" />
+                  </div>
+
+                  {/* Right Card */}
+                  <div className="w-full md:w-[45%] pl-14 md:pl-0 text-left">
+                    <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-hover hover:-translate-y-0.5 transition-all">
+                      <IslamicCorners />
+                      <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary font-bold text-[10px] rounded uppercase mb-2">Tahap 4</span>
+                      <h3 className="text-base font-cairo font-bold text-slate-900">Daftar Ulang Fisik</h3>
+                      <p className="text-xs font-semibold text-accent mt-1">
+                        {selectedWave.daftarUlang}
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                        Peserta yang dinyatakan Lulus membawa lembar cetak bukti pendaftaran beserta dokumen fisik (KK, Akta, KTP, Surat Kelulusan) asli ke Sekretariat Yayasan.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="hidden md:block w-[45%]" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Persyaratan Pendaftaran Section */}
       <section id="persyaratan" className="py-20 px-4 sm:px-6 lg:px-8">

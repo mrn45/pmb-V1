@@ -1256,118 +1256,203 @@ export default function AdminDashboard({
 
             {/* CARD: TIMELINE & JADWAL SELEKSI (ADMIN ONLY) */}
             <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg mt-6">
-              <h3 className="text-sm font-cairo font-bold text-primary border-b border-slate-100 pb-3 flex items-center gap-2 uppercase tracking-wider">
-                <Calendar className="w-5 h-5 text-accent" />
-                <span>Pengaturan Timeline & Jadwal Seleksi</span>
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
-                {/* Gelombang 1 Schedule */}
-                <div className="space-y-4">
-                  <h4 className="font-cairo font-bold text-xs uppercase tracking-wide text-primary/80 border-b border-slate-100 pb-1.5 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-primary rounded-full" />
-                    <span>Jadwal Gelombang 1</span>
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 1: Pendaftaran & Formulir Online</label>
-                      <input
-                        type="text"
-                        disabled={user.role !== Role.ADMIN}
-                        value={configForm?.g1Pendaftaran || ""}
-                        onChange={(e) => setConfigForm({ ...configForm, g1Pendaftaran: e.target.value })}
-                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
-                        placeholder={`Contoh: 1 Maret – 30 April ${configForm?.year || "2026"}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 2: Seleksi Berkas & Verifikasi</label>
-                      <input
-                        type="text"
-                        disabled={user.role !== Role.ADMIN}
-                        value={configForm?.g1Verifikasi || ""}
-                        onChange={(e) => setConfigForm({ ...configForm, g1Verifikasi: e.target.value })}
-                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
-                        placeholder={`Contoh: 1 Mei – 3 Mei ${configForm?.year || "2026"}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 3: Pengumuman Kelulusan</label>
-                      <input
-                        type="text"
-                        disabled={user.role !== Role.ADMIN}
-                        value={configForm?.g1Pengumuman || ""}
-                        onChange={(e) => setConfigForm({ ...configForm, g1Pengumuman: e.target.value })}
-                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
-                        placeholder={`Contoh: 5 Mei ${configForm?.year || "2026"}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 4: Daftar Ulang Fisik</label>
-                      <input
-                        type="text"
-                        disabled={user.role !== Role.ADMIN}
-                        value={configForm?.g1DaftarUlang || ""}
-                        onChange={(e) => setConfigForm({ ...configForm, g1DaftarUlang: e.target.value })}
-                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
-                        placeholder={`Contoh: 6 Mei – 12 Mei ${configForm?.year || "2026"}`}
-                      />
-                    </div>
-                  </div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <h3 className="text-sm font-cairo font-bold text-primary flex items-center gap-2 uppercase tracking-wider">
+                  <Calendar className="w-5 h-5 text-accent" />
+                  <span>Pengaturan Timeline & Jadwal Seleksi</span>
+                </h3>
+                
+                {/* On/Off Switch for Gelombang dan Jadwal */}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold text-slate-500">Status Tampilan Jadwal:</span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      disabled={user.role !== Role.ADMIN}
+                      checked={configForm?.showJadwal !== false}
+                      onChange={(e) => setConfigForm({ ...configForm, showJadwal: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    <span className="ml-2 text-xs font-bold text-slate-700">
+                      {configForm?.showJadwal !== false ? "AKTIF / ON" : "NONAKTIF / OFF"}
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {configForm?.showJadwal === false && (
+                <div className="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs flex items-start gap-2.5">
+                  <Info className="w-4 h-4 mt-0.5 shrink-0" />
+                  <p className="leading-relaxed">
+                    <strong>Tampilan Jadwal Dinonaktifkan:</strong> Seluruh bagian agenda penting dan timeline gelombang tidak akan dimunculkan di halaman utama (Landing Page) bagi calon pendaftar.
+                  </p>
+                </div>
+              )}
+
+              {/* Dynamic Waves Management */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700 font-cairo uppercase tracking-wider">Daftar Gelombang Pendaftaran</span>
+                  {user.role === Role.ADMIN && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentList = configForm?.gelombangList || [
+                          {
+                            id: "g1",
+                            name: "Gelombang 1",
+                            pendaftaran: configForm?.g1Pendaftaran || `1 Maret – 30 April ${configForm?.year || "2026"}`,
+                            verifikasi: configForm?.g1Verifikasi || `1 Mei – 3 Mei ${configForm?.year || "2026"}`,
+                            pengumuman: configForm?.g1Pengumuman || `5 Mei ${configForm?.year || "2026"}`,
+                            daftarUlang: configForm?.g1DaftarUlang || `6 Mei – 12 Mei ${configForm?.year || "2026"}`,
+                          },
+                          {
+                            id: "g2",
+                            name: "Gelombang 2",
+                            pendaftaran: configForm?.g2Pendaftaran || `1 Mei – 30 Juni ${configForm?.year || "2026"}`,
+                            verifikasi: configForm?.g2Verifikasi || `1 Juli – 3 Juli ${configForm?.year || "2026"}`,
+                            pengumuman: configForm?.g2Pengumuman || `5 Juli ${configForm?.year || "2026"}`,
+                            daftarUlang: configForm?.g2DaftarUlang || `6 Juli – 12 Juli ${configForm?.year || "2026"}`,
+                          }
+                        ];
+                        const newWave = {
+                          id: "g_" + Date.now(),
+                          name: `Gelombang ${currentList.length + 1}`,
+                          pendaftaran: "",
+                          verifikasi: "",
+                          pengumuman: "",
+                          daftarUlang: ""
+                        };
+                        setConfigForm({
+                          ...configForm,
+                          gelombangList: [...currentList, newWave]
+                        });
+                      }}
+                      className="px-3.5 py-2 bg-primary text-white hover:bg-teal-800 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Tambah Gelombang Baru</span>
+                    </button>
+                  )}
                 </div>
 
-                {/* Gelombang 2 Schedule */}
-                <div className="space-y-4">
-                  <h4 className="font-cairo font-bold text-xs uppercase tracking-wide text-accent/90 border-b border-slate-100 pb-1.5 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-accent rounded-full" />
-                    <span>Jadwal Gelombang 2</span>
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 1: Pendaftaran & Formulir Online</label>
-                      <input
-                        type="text"
-                        disabled={user.role !== Role.ADMIN}
-                        value={configForm?.g2Pendaftaran || ""}
-                        onChange={(e) => setConfigForm({ ...configForm, g2Pendaftaran: e.target.value })}
-                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
-                        placeholder={`Contoh: 1 Mei – 30 Juni ${configForm?.year || "2026"}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 2: Seleksi Berkas & Verifikasi</label>
-                      <input
-                        type="text"
-                        disabled={user.role !== Role.ADMIN}
-                        value={configForm?.g2Verifikasi || ""}
-                        onChange={(e) => setConfigForm({ ...configForm, g2Verifikasi: e.target.value })}
-                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
-                        placeholder={`Contoh: 1 Juli – 3 Juli ${configForm?.year || "2026"}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 3: Pengumuman Kelulusan</label>
-                      <input
-                        type="text"
-                        disabled={user.role !== Role.ADMIN}
-                        value={configForm?.g2Pengumuman || ""}
-                        onChange={(e) => setConfigForm({ ...configForm, g2Pengumuman: e.target.value })}
-                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
-                        placeholder={`Contoh: 5 Juli ${configForm?.year || "2026"}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 4: Daftar Ulang Fisik</label>
-                      <input
-                        type="text"
-                        disabled={user.role !== Role.ADMIN}
-                        value={configForm?.g2DaftarUlang || ""}
-                        onChange={(e) => setConfigForm({ ...configForm, g2DaftarUlang: e.target.value })}
-                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
-                        placeholder={`Contoh: 6 Juli – 12 Juli ${configForm?.year || "2026"}`}
-                      />
-                    </div>
-                  </div>
+                {/* Render Gelombang List */}
+                <div className="space-y-8">
+                  {(() => {
+                    const currentList = configForm?.gelombangList || [
+                      {
+                        id: "g1",
+                        name: "Gelombang 1",
+                        pendaftaran: configForm?.g1Pendaftaran || `1 Maret – 30 April ${configForm?.year || "2026"}`,
+                        verifikasi: configForm?.g1Verifikasi || `1 Mei – 3 Mei ${configForm?.year || "2026"}`,
+                        pengumuman: configForm?.g1Pengumuman || `5 Mei ${configForm?.year || "2026"}`,
+                        daftarUlang: configForm?.g1DaftarUlang || `6 Mei – 12 Mei ${configForm?.year || "2026"}`,
+                      },
+                      {
+                        id: "g2",
+                        name: "Gelombang 2",
+                        pendaftaran: configForm?.g2Pendaftaran || `1 Mei – 30 Juni ${configForm?.year || "2026"}`,
+                        verifikasi: configForm?.g2Verifikasi || `1 Juli – 3 Juli ${configForm?.year || "2026"}`,
+                        pengumuman: configForm?.g2Pengumuman || `5 Juli ${configForm?.year || "2026"}`,
+                        daftarUlang: configForm?.g2DaftarUlang || `6 Juli – 12 Juli ${configForm?.year || "2026"}`,
+                      }
+                    ];
+
+                    return currentList.map((g) => (
+                      <div key={g.id} className="p-5 sm:p-6 bg-slate-50 border border-slate-100 rounded-xl space-y-4 relative">
+                        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                          <div className="flex items-center gap-2 w-full max-w-md">
+                            <span className="w-2.5 h-2.5 rounded-full bg-accent shrink-0" />
+                            <input
+                              type="text"
+                              disabled={user.role !== Role.ADMIN}
+                              value={g.name}
+                              onChange={(e) => {
+                                const updated = currentList.map(item => item.id === g.id ? { ...item, name: e.target.value } : item);
+                                setConfigForm({ ...configForm, gelombangList: updated });
+                              }}
+                              className="w-full text-xs font-bold font-cairo text-primary uppercase bg-transparent border-b border-slate-200 hover:border-slate-300 focus:border-primary focus:outline-none py-0.5 px-1"
+                              placeholder="Nama Gelombang"
+                            />
+                          </div>
+
+                          {user.role === Role.ADMIN && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = currentList.filter(item => item.id !== g.id);
+                                setConfigForm({ ...configForm, gelombangList: updated });
+                              }}
+                              className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors cursor-pointer"
+                              title="Hapus Gelombang"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 1: Pendaftaran Online</label>
+                            <input
+                              type="text"
+                              disabled={user.role !== Role.ADMIN}
+                              value={g.pendaftaran}
+                              onChange={(e) => {
+                                const updated = currentList.map(item => item.id === g.id ? { ...item, pendaftaran: e.target.value } : item);
+                                setConfigForm({ ...configForm, gelombangList: updated });
+                              }}
+                              className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                              placeholder="Contoh: 1 Mar – 30 Apr 2026"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 2: Seleksi & Verifikasi</label>
+                            <input
+                              type="text"
+                              disabled={user.role !== Role.ADMIN}
+                              value={g.verifikasi}
+                              onChange={(e) => {
+                                const updated = currentList.map(item => item.id === g.id ? { ...item, verifikasi: e.target.value } : item);
+                                setConfigForm({ ...configForm, gelombangList: updated });
+                              }}
+                              className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                              placeholder="Contoh: 1 Mei – 3 Mei 2026"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 3: Pengumuman Kelulusan</label>
+                            <input
+                              type="text"
+                              disabled={user.role !== Role.ADMIN}
+                              value={g.pengumuman}
+                              onChange={(e) => {
+                                const updated = currentList.map(item => item.id === g.id ? { ...item, pengumuman: e.target.value } : item);
+                                setConfigForm({ ...configForm, gelombangList: updated });
+                              }}
+                              className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                              placeholder="Contoh: 5 Mei 2026"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 4: Daftar Ulang Fisik</label>
+                            <input
+                              type="text"
+                              disabled={user.role !== Role.ADMIN}
+                              value={g.daftarUlang}
+                              onChange={(e) => {
+                                const updated = currentList.map(item => item.id === g.id ? { ...item, daftarUlang: e.target.value } : item);
+                                setConfigForm({ ...configForm, gelombangList: updated });
+                              }}
+                              className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                              placeholder="Contoh: 6 Mei – 12 Mei 2026"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ));
+                  })()}
                 </div>
               </div>
             </div>

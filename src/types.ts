@@ -69,6 +69,15 @@ export interface Registration {
   qrCodeUrl?: string;
 }
 
+export interface GelombangItem {
+  id: string;
+  name: string;
+  pendaftaran: string;
+  verifikasi: string;
+  pengumuman: string;
+  daftarUlang: string;
+}
+
 export interface SystemSettings {
   year: string;
   gelombang: string;
@@ -89,6 +98,8 @@ export interface SystemSettings {
   g2Verifikasi?: string;
   g2Pengumuman?: string;
   g2DaftarUlang?: string;
+  showJadwal?: boolean;
+  gelombangList?: GelombangItem[];
 }
 
 export interface Announcement {
