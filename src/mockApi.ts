@@ -13,6 +13,31 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = initializeFirestore(app, { experimentalForceLongPolling: true }, firebaseConfig.firestoreDatabaseId);
 
+const getActiveUser = () => {
+  try {
+    const userStr = localStorage.getItem('spmb_user');
+    if (userStr) return JSON.parse(userStr);
+  } catch (e) {}
+  return { username: "SISTEM", role: "SISTEM", fullName: "SISTEM" };
+};
+
+async function logAction(username: string, role: string, action: string, details: string) {
+  const logId = 'log_' + Math.random().toString(36).substring(2, 11);
+  const newLog = {
+    id: logId,
+    timestamp: new Date().toISOString(),
+    username,
+    role,
+    action,
+    details
+  };
+  try {
+    await setDoc(doc(db, 'logs', logId), newLog);
+  } catch (err) {
+    console.error("Failed to write audit log:", err);
+  }
+}
+
 export function setupMockApi() {
 
   const originalFetch = window.fetch;
@@ -46,12 +71,16 @@ export function setupMockApi() {
             if (u.username === username && u.password === password) user = u;
           });
 
-          if (user) return res(200, { token: 'mock-token', user });
+          if (user) {
+            await logAction(user.username, user.role, 'LOGIN', `Pengguna ${user.fullName} (${user.username}) berhasil masuk ke sistem.`);
+            return res(200, { token: 'mock-token', user });
+          }
           
           // Seed admin if no admin user exists and username is admin
           if (username === 'admin' && password === '51001n') {
             const admin = { id: Date.now().toString(36) + Math.random().toString(36).substring(2), username: 'admin', password: '51001n', role: 'ADMIN', fullName: 'Administrator', createdAt: new Date().toISOString() };
             await setDoc(doc(db, 'users', admin.id), admin);
+            await logAction(admin.username, admin.role, 'LOGIN', `Pengguna ${admin.fullName} (${admin.username}) berhasil masuk ke sistem (Inisialisasi admin pertama).`);
             return res(200, { token: 'mock-token', user: admin });
           }
           return res(401, { message: 'Invalid credentials' });
@@ -87,6 +116,8 @@ export function setupMockApi() {
         
         if (pathname === '/api/settings' && method === 'PUT') {
           await setDoc(doc(db, 'settings', 'system'), body, { merge: true });
+          const active = getActiveUser();
+          await logAction(active.username, active.role, 'PENGATURAN', 'Memperbarui konfigurasi sistem dan pembagian kuota pendaftaran.');
           return res(200, { settings: body });
         }
 
@@ -100,12 +131,16 @@ export function setupMockApi() {
         if (pathname === '/api/announcements' && method === 'POST') {
           const ann = { ...body, id: Date.now().toString(36) + Math.random().toString(36).substring(2), createdAt: new Date().toISOString() };
           await setDoc(doc(db, 'announcements', ann.id), ann);
+          const active = getActiveUser();
+          await logAction(active.username, active.role, 'PENGUMUMAN', `Membuat pengumuman baru: "${ann.title}".`);
           return res(201, { announcement: ann });
         }
 
         if (pathname.startsWith('/api/announcements/') && method === 'DELETE') {
           const id = pathname.split('/').pop();
           await deleteDoc(doc(db, 'announcements', id));
+          const active = getActiveUser();
+          await logAction(active.username, active.role, 'PENGUMUMAN', `Menghapus pengumuman.`);
           return res(200, { message: 'Deleted' });
         }
 
@@ -119,12 +154,16 @@ export function setupMockApi() {
         if (pathname === '/api/users' && method === 'POST') {
           const u = { ...body, id: Date.now().toString(36) + Math.random().toString(36).substring(2), createdAt: new Date().toISOString() };
           await setDoc(doc(db, 'users', u.id), u);
+          const active = getActiveUser();
+          await logAction(active.username, active.role, 'PENGGUNA', `Membuat akun pengguna baru: "${u.username}" (${u.fullName}) dengan peran ${u.role}.`);
           return res(201, { user: u });
         }
 
         if (pathname.startsWith('/api/users/') && method === 'DELETE') {
           const id = pathname.split('/').pop();
           await deleteDoc(doc(db, 'users', id));
+          const active = getActiveUser();
+          await logAction(active.username, active.role, 'PENGGUNA', `Menghapus akun pengguna.`);
           return res(200, { message: 'Deleted' });
         }
         
@@ -195,6 +234,7 @@ export function setupMockApi() {
             createdAt: new Date().toISOString()
           };
           await setDoc(doc(db, 'users', newUser.id), newUser);
+          await logAction(newReg.nik, 'PESERTA', 'DAFTAR', `Pendaftaran online berhasil dikirim oleh "${newReg.fullName}" (No. NIK: ${newReg.nik}) pada jenjang ${newReg.level}.`);
           return res(201, { message: 'Success', registration: newReg, user: newUser });
         }
 
@@ -216,6 +256,8 @@ export function setupMockApi() {
                 await deleteDoc(doc(db, 'users', uDoc.id));
               }
             });
+            const active = getActiveUser();
+            await logAction(active.username, active.role, 'PENDAFTARAN', `Menghapus berkas pendaftaran dengan ID: ${id}.`);
             return res(200, { message: 'Deleted' });
           }
         }
@@ -225,12 +267,17 @@ export function setupMockApi() {
           const docRef = doc(db, 'registrations', id);
           await updateDoc(docRef, body);
           const docSnap = await getDoc(docRef);
+          const active = getActiveUser();
+          await logAction(active.username, active.role, 'PENDAFTARAN', `Memperbarui detail profil calon peserta: "${docSnap.data()?.fullName || ''}".`);
           return res(200, { registration: docSnap.data() });
         }
 
         if (pathname.match(/\/api\/registrations\/[^\/]+\/status$/) && method === 'PUT') {
           const id = pathname.split('/')[3];
           await updateDoc(doc(db, 'registrations', id), { status: body.status });
+          const docSnap = await getDoc(doc(db, 'registrations', id));
+          const active = getActiveUser();
+          await logAction(active.username, active.role, 'STATUS', `Mengubah status pendaftaran siswa "${docSnap.data()?.fullName || ''}" menjadi "${body.status}".`);
           return res(200, { message: 'Updated' });
         }
 
@@ -291,7 +338,59 @@ export function setupMockApi() {
         }
         
         if (pathname === '/api/logs' && method === 'GET') {
-           return res(200, []);
+          const snap = await getDocs(collection(db, 'logs'));
+          const logs: any[] = [];
+          snap.forEach(d => logs.push(d.data()));
+          
+          if (logs.length === 0) {
+            const seedLogs = [
+              {
+                id: 'log_seed1',
+                timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
+                username: 'admin',
+                role: 'ADMIN',
+                action: 'SISTEM',
+                details: 'Inisialisasi sistem pendaftaran PSB online Madrasah & Sekolah Assyafiiyah.'
+              },
+              {
+                id: 'log_seed2',
+                timestamp: new Date(Date.now() - 3600000 * 18).toISOString(),
+                username: 'admin',
+                role: 'ADMIN',
+                action: 'PENGATURAN',
+                details: 'Memperbarui konfigurasi kuota pendaftaran Gelombang 1.'
+              },
+              {
+                id: 'log_seed3',
+                timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
+                username: 'panitia_1',
+                role: 'PANITIA',
+                action: 'LOGIN',
+                details: 'Panitia masuk ke sistem dan memperbarui data pendaftar.'
+              },
+              {
+                id: 'log_seed4',
+                timestamp: new Date(Date.now() - 3600000 * 6).toISOString(),
+                username: 'admin',
+                role: 'ADMIN',
+                action: 'PENGUMUMAN',
+                details: 'Membuat pengumuman baru mengenai jadwal verifikasi dokumen fisik.'
+              },
+              {
+                id: 'log_seed5',
+                timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+                username: 'SISTEM',
+                role: 'SISTEM',
+                action: 'DAFTAR',
+                details: 'Calon peserta baru melakukan pendaftaran mandiri online.'
+              }
+            ];
+            for (const item of seedLogs) {
+              await setDoc(doc(db, 'logs', item.id), item);
+              logs.push(item);
+            }
+          }
+          return res(200, logs.sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
         }
 
         return res(404, { message: 'Route not mocked: ' + url });

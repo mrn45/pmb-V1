@@ -81,6 +81,14 @@ export interface SystemSettings {
   facebookUrl?: string;
   instagramUrl?: string;
   youtubeUrl?: string;
+  g1Pendaftaran?: string;
+  g1Verifikasi?: string;
+  g1Pengumuman?: string;
+  g1DaftarUlang?: string;
+  g2Pendaftaran?: string;
+  g2Verifikasi?: string;
+  g2Pengumuman?: string;
+  g2DaftarUlang?: string;
 }
 
 export interface Announcement {

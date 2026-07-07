@@ -13,12 +13,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
   Cell
 } from "recharts";
 import {
@@ -26,7 +20,6 @@ import {
   Users,
   Settings,
   Megaphone,
-  History,
   Database,
   Search,
   Filter,
@@ -57,9 +50,11 @@ import {
   Image,
   Facebook,
   Instagram,
-  Youtube
+  Youtube,
+  Calendar,
+  FileText
 } from "lucide-react";
-import { User, Registration, StatusPendaftaran, Jenjang, Role, SystemSettings, Announcement, AuditLog } from "../types.js";
+import { User, Registration, StatusPendaftaran, Jenjang, Role, SystemSettings, Announcement } from "../types.js";
 import { BismillahCalligraphy, IslamicDivider, IslamicCorners, RubElHizb } from "./IslamicOrnaments.js";
 
 interface AdminDashboardProps {
@@ -79,7 +74,7 @@ export default function AdminDashboard({
   darkMode,
   onSettingsUpdate
 }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "peserta" | "settings" | "announcements" | "panitia" | "logs" | "database">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "peserta" | "settings" | "announcements" | "panitia" | "database">("dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Backend state
@@ -88,7 +83,6 @@ export default function AdminDashboard({
   const [sysSettings, setSysSettings] = useState<SystemSettings | null>(null);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [committeeUsers, setCommitteeUsers] = useState<User[]>([]);
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filter/Search states for table
@@ -198,12 +192,6 @@ export default function AdminDashboard({
         const usersRes = await fetch("/api/users", { headers });
         if (usersRes.ok) {
           setCommitteeUsers(await usersRes.json());
-        }
-
-        // 6. Audit Logs (Admin Only)
-        const logsRes = await fetch("/api/logs", { headers });
-        if (logsRes.ok) {
-          setAuditLogs(await logsRes.json());
         }
       }
 
@@ -660,16 +648,6 @@ export default function AdminDashboard({
               </button>
 
               <button
-                onClick={() => { setActiveTab("logs"); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
-                  activeTab === "logs" ? "bg-primary text-white" : "hover:bg-slate-800 text-slate-400 hover:text-white"
-                }`}
-              >
-                <History className="w-4 h-4" />
-                <span>Log Aktivitas</span>
-              </button>
-
-              <button
                 onClick={() => { setActiveTab("database"); setMobileMenuOpen(false); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
                   activeTab === "database" ? "bg-primary text-white" : "hover:bg-slate-800 text-slate-400 hover:text-white"
@@ -702,7 +680,6 @@ export default function AdminDashboard({
               {activeTab === "settings" && "Pengaturan Sistem & Profil Lembaga"}
               {activeTab === "announcements" && "Editor Pengumuman Kelompok"}
               {activeTab === "panitia" && "Manajemen Hak Akses Panitia"}
-              {activeTab === "logs" && "Log Audit Histori Transaksi"}
               {activeTab === "database" && "Pemeliharaan Cadangan Database"}
             </h1>
           </div>
@@ -755,30 +732,7 @@ export default function AdminDashboard({
             </div>
 
             {/* Recharts Graphs */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Daily Trend Line Graph */}
-              <div className="glass-panel rounded-2xl p-6 lg:col-span-2 islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
-                <IslamicCorners />
-                <h3 className="font-cairo font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider relative z-10">Grafik Trend Pendaftaran (10 Hari Terakhir)</h3>
-                <div className="h-64 relative z-10">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={stats.dailyTrend}>
-                      <defs>
-                        <linearGradient id="colorTrend" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#0F766E" stopOpacity={0.2}/>
-                          <stop offset="95%" stopColor="#0F766E" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="date" fontSize={10} tickLine={false} />
-                      <YAxis fontSize={10} tickLine={false} />
-                      <Tooltip />
-                      <Area type="monotone" dataKey="count" stroke="#0F766E" strokeWidth={2.5} fillOpacity={1} fill="url(#colorTrend)" name="Jumlah Pendaftar" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
+            <div className="grid grid-cols-1 gap-6">
               {/* level distribution chart */}
               <div className="glass-panel rounded-2xl p-6 islamic-card-gilded relative overflow-hidden smooth-shadow-lg">
                 <IslamicCorners />
@@ -1299,6 +1253,124 @@ export default function AdminDashboard({
                 </div>
               </div>
             </div>
+
+            {/* CARD: TIMELINE & JADWAL SELEKSI (ADMIN ONLY) */}
+            <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 smooth-shadow-lg mt-6">
+              <h3 className="text-sm font-cairo font-bold text-primary border-b border-slate-100 pb-3 flex items-center gap-2 uppercase tracking-wider">
+                <Calendar className="w-5 h-5 text-accent" />
+                <span>Pengaturan Timeline & Jadwal Seleksi</span>
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                {/* Gelombang 1 Schedule */}
+                <div className="space-y-4">
+                  <h4 className="font-cairo font-bold text-xs uppercase tracking-wide text-primary/80 border-b border-slate-100 pb-1.5 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full" />
+                    <span>Jadwal Gelombang 1</span>
+                  </h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 1: Pendaftaran & Formulir Online</label>
+                      <input
+                        type="text"
+                        disabled={user.role !== Role.ADMIN}
+                        value={configForm?.g1Pendaftaran || ""}
+                        onChange={(e) => setConfigForm({ ...configForm, g1Pendaftaran: e.target.value })}
+                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                        placeholder={`Contoh: 1 Maret – 30 April ${configForm?.year || "2026"}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 2: Seleksi Berkas & Verifikasi</label>
+                      <input
+                        type="text"
+                        disabled={user.role !== Role.ADMIN}
+                        value={configForm?.g1Verifikasi || ""}
+                        onChange={(e) => setConfigForm({ ...configForm, g1Verifikasi: e.target.value })}
+                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                        placeholder={`Contoh: 1 Mei – 3 Mei ${configForm?.year || "2026"}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 3: Pengumuman Kelulusan</label>
+                      <input
+                        type="text"
+                        disabled={user.role !== Role.ADMIN}
+                        value={configForm?.g1Pengumuman || ""}
+                        onChange={(e) => setConfigForm({ ...configForm, g1Pengumuman: e.target.value })}
+                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                        placeholder={`Contoh: 5 Mei ${configForm?.year || "2026"}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 4: Daftar Ulang Fisik</label>
+                      <input
+                        type="text"
+                        disabled={user.role !== Role.ADMIN}
+                        value={configForm?.g1DaftarUlang || ""}
+                        onChange={(e) => setConfigForm({ ...configForm, g1DaftarUlang: e.target.value })}
+                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                        placeholder={`Contoh: 6 Mei – 12 Mei ${configForm?.year || "2026"}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gelombang 2 Schedule */}
+                <div className="space-y-4">
+                  <h4 className="font-cairo font-bold text-xs uppercase tracking-wide text-accent/90 border-b border-slate-100 pb-1.5 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-accent rounded-full" />
+                    <span>Jadwal Gelombang 2</span>
+                  </h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 1: Pendaftaran & Formulir Online</label>
+                      <input
+                        type="text"
+                        disabled={user.role !== Role.ADMIN}
+                        value={configForm?.g2Pendaftaran || ""}
+                        onChange={(e) => setConfigForm({ ...configForm, g2Pendaftaran: e.target.value })}
+                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                        placeholder={`Contoh: 1 Mei – 30 Juni ${configForm?.year || "2026"}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 2: Seleksi Berkas & Verifikasi</label>
+                      <input
+                        type="text"
+                        disabled={user.role !== Role.ADMIN}
+                        value={configForm?.g2Verifikasi || ""}
+                        onChange={(e) => setConfigForm({ ...configForm, g2Verifikasi: e.target.value })}
+                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                        placeholder={`Contoh: 1 Juli – 3 Juli ${configForm?.year || "2026"}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 3: Pengumuman Kelulusan</label>
+                      <input
+                        type="text"
+                        disabled={user.role !== Role.ADMIN}
+                        value={configForm?.g2Pengumuman || ""}
+                        onChange={(e) => setConfigForm({ ...configForm, g2Pengumuman: e.target.value })}
+                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                        placeholder={`Contoh: 5 Juli ${configForm?.year || "2026"}`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tahap 4: Daftar Ulang Fisik</label>
+                      <input
+                        type="text"
+                        disabled={user.role !== Role.ADMIN}
+                        value={configForm?.g2DaftarUlang || ""}
+                        onChange={(e) => setConfigForm({ ...configForm, g2DaftarUlang: e.target.value })}
+                        className="w-full text-xs px-3.5 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 font-semibold text-slate-800"
+                        placeholder={`Contoh: 6 Juli – 12 Juli ${configForm?.year || "2026"}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1491,34 +1563,6 @@ export default function AdminDashboard({
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB: LOG AKTIVITAS (ADMIN ONLY) */}
-        {activeTab === "logs" && user.role === Role.ADMIN && (
-          <div className="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-4">
-            <h3 className="font-cairo font-bold text-slate-800 text-sm border-b border-slate-50 pb-2">Log Riwayat Operasional Sistem</h3>
-            <div className="overflow-y-auto max-h-[550px] space-y-3.5 pr-1 text-xs">
-              {auditLogs.length > 0 ? (
-                auditLogs.map((log) => (
-                  <div key={log.id} className="p-3 border border-slate-100 rounded-xl bg-slate-50/40 backdrop-blur-sm relative flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 font-mono text-[11px]">{log.username}</span>
-                        <span className="px-1.5 py-0.5 bg-slate-200 text-slate-600 font-bold text-[8px] rounded uppercase">{log.role}</span>
-                        <span className="text-[10px] text-slate-400 font-bold">{log.action}</span>
-                      </div>
-                      <p className="text-slate-500 font-semibold">{log.details}</p>
-                    </div>
-                    <span className="text-[9px] font-mono text-slate-400 shrink-0">
-                      {new Date(log.timestamp).toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-xs text-slate-400 text-center py-8 font-medium">Log aktivitas kosong.</p>
-              )}
             </div>
           </div>
         )}
