@@ -219,7 +219,33 @@ export function setupMockApi() {
           return res(200, { data: paginatedRegs, totalPages, total });
         }
         
+        if (pathname.startsWith('/api/registrations/check-nik/') && method === 'GET') {
+          const nik = pathname.split('/').pop();
+          if (!nik) return res(400, { message: 'NIK is required' });
+          
+          const snap = await getDocs(collection(db, 'registrations'));
+          let exists = false;
+          snap.forEach(d => {
+            if (d.data().nik === nik) {
+              exists = true;
+            }
+          });
+          return res(200, { exists });
+        }
+
         if (pathname === '/api/registrations' && method === 'POST') {
+          const nik = body.nik;
+          const snap = await getDocs(collection(db, 'registrations'));
+          let exists = false;
+          snap.forEach(d => {
+            if (d.data().nik === nik) {
+              exists = true;
+            }
+          });
+          if (exists) {
+            return res(400, { message: 'Siswa dengan NIK tersebut sudah terdaftar pada sistem.' });
+          }
+
           const newReg = { ...body, id: Date.now().toString(36) + Math.random().toString(36).substring(2), createdAt: new Date().toISOString(), status: 'Menunggu', registrationNumber: 'REG-' + Date.now() };
           await setDoc(doc(db, 'registrations', newReg.id), newReg);
           

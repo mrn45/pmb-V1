@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -15,7 +15,9 @@ import {
   GraduationCap,
   User,
   MapPin,
-  Users
+  Users,
+  CheckCircle,
+  Info
 } from "lucide-react";
 import { Jenjang, Registration } from "../types.js";
 import { BismillahCalligraphy, IslamicDivider, IslamicCorners, RubElHizb } from "./IslamicOrnaments.js";
@@ -71,6 +73,20 @@ export default function RegistrationForm({
   // Client Validation Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Duplicate Check and Dialog states
+  const [isCheckingNik, setIsCheckingNik] = useState(false);
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: "success" | "error" | "info";
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info"
+  });
+
   const validateField = (name: string, value: any) => {
     let err = "";
     if (name === "nik") {
@@ -115,6 +131,31 @@ export default function RegistrationForm({
     return !err;
   };
 
+  const handleCheckNikDuplicate = async (nikVal: string) => {
+    if (!nikVal || nikVal.length !== 16 || !/^\d{16}$/.test(nikVal)) return false;
+    setIsCheckingNik(true);
+    try {
+      const response = await fetch(`/api/registrations/check-nik/${nikVal}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.exists) {
+          setAlertModal({
+            isOpen: true,
+            title: "Siswa Sudah Terdaftar",
+            message: `Mohon maaf, calon siswa dengan NIK ${nikVal} sudah terdaftar di sistem kami. Silakan periksa kembali NIK yang dimasukkan.`,
+            type: "error"
+          });
+          return true;
+        }
+      }
+    } catch (err) {
+      console.error("Error checking NIK duplicate:", err);
+    } finally {
+      setIsCheckingNik(false);
+    }
+    return false;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const val = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
@@ -130,6 +171,9 @@ export default function RegistrationForm({
             return copy;
           });
         }
+      }
+      if (name === "nik" && typeof val === "string" && val.length === 16) {
+        handleCheckNikDuplicate(val);
       }
       return updated;
     });
@@ -177,8 +221,12 @@ export default function RegistrationForm({
     return isValid;
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (validateStep(currentStep)) {
+      if (currentStep === 1) {
+        const isDuplicate = await handleCheckNikDuplicate(formData.nik);
+        if (isDuplicate) return;
+      }
       setCurrentStep((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -1015,6 +1063,55 @@ export default function RegistrationForm({
           )}
         </div>
       </form>
+
+      {/* Custom Alert Modal */}
+      <AnimatePresence>
+        {alertModal.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden flex flex-col items-center"
+            >
+              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                <RubElHizb className="w-24 h-24 text-primary" />
+              </div>
+              
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
+                alertModal.type === 'success' ? 'bg-green-100 text-green-600' : 
+                alertModal.type === 'error' ? 'bg-rose-100 text-rose-600' : 
+                'bg-blue-100 text-blue-600'
+              }`}>
+                {alertModal.type === 'success' && <CheckCircle className="w-8 h-8" />}
+                {alertModal.type === 'error' && <AlertCircle className="w-8 h-8" />}
+                {alertModal.type === 'info' && <Info className="w-8 h-8" />}
+              </div>
+              
+              <h3 className="text-lg font-cairo font-bold text-slate-900 dark:text-white mb-2 leading-tight">
+                {alertModal.title}
+              </h3>
+              
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-6 px-2 leading-relaxed">
+                {alertModal.message}
+              </p>
+              
+              <button
+                type="button"
+                onClick={() => setAlertModal(prev => ({ ...prev, isOpen: false }))}
+                className="w-full py-2.5 bg-primary hover:bg-teal-800 text-white rounded-xl font-bold transition-all text-xs cursor-pointer shadow-sm"
+              >
+                Saya Mengerti
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
