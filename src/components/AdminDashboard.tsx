@@ -105,6 +105,8 @@ export default function AdminDashboard({
   const [annLoading, setAnnLoading] = useState(false);
   const [waMessage, setWaMessage] = useState("");
   const [waLoading, setWaLoading] = useState(false);
+  const [waTargetType, setWaTargetType] = useState<"ALL" | "SPECIFIC">("ALL");
+  const [waTargetPhone, setWaTargetPhone] = useState("");
 
   // Create Panitia User state
   const [newUserForm, setNewUserForm] = useState({ username: "", password: "", fullName: "", role: Role.PANITIA });
@@ -366,6 +368,10 @@ export default function AdminDashboard({
   const handleSendWaMassal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!waMessage) return;
+    if (waTargetType === "SPECIFIC" && !waTargetPhone) {
+      showAlert("Peringatan", "Mohon isi nomor WA tujuan.", "error");
+      return;
+    }
 
     setWaLoading(true);
     try {
@@ -375,7 +381,11 @@ export default function AdminDashboard({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ message: waMessage })
+        body: JSON.stringify({ 
+          message: waMessage,
+          targetType: waTargetType,
+          targetPhone: waTargetPhone
+        })
       });
 
       if (response.ok) {
@@ -1576,9 +1586,40 @@ export default function AdminDashboard({
               <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
                 <h3 className="font-cairo font-bold text-[#25D366] text-sm border-b border-slate-50 pb-2 flex items-center gap-1.5">
                   <Phone className="w-4.5 h-4.5" />
-                  <span>Kirim Pesan WA Masal</span>
+                  <span>Kirim Pesan WA</span>
                 </h3>
                 <form onSubmit={handleSendWaMassal} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Kirim Ke</label>
+                    <select
+                      value={waTargetType}
+                      onChange={(e) => setWaTargetType(e.target.value as "ALL" | "SPECIFIC")}
+                      className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#25D366]"
+                    >
+                      <option value="ALL">Semua Wali Siswa</option>
+                      <option value="SPECIFIC">Satu Nomor Tertentu</option>
+                    </select>
+                  </div>
+
+                  {waTargetType === "SPECIFIC" && (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Pilih Wali Siswa</label>
+                      <select
+                        required
+                        value={waTargetPhone}
+                        onChange={(e) => setWaTargetPhone(e.target.value)}
+                        className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#25D366]"
+                      >
+                        <option value="">-- Pilih Wali Siswa --</option>
+                        {registrations.filter(r => r.parentPhone).map(r => (
+                          <option key={r.id} value={r.parentPhone}>
+                            {r.fullName} - Wali: {r.fatherName || r.motherName || 'Wali'} ({r.parentPhone})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Pesan WhatsApp</label>
                     <textarea
@@ -1587,7 +1628,7 @@ export default function AdminDashboard({
                       value={waMessage}
                       onChange={(e) => setWaMessage(e.target.value)}
                       className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#25D366]"
-                      placeholder="Tulis pesan yang akan dikirimkan ke semua nomor wali peserta yang terdaftar..."
+                      placeholder="Tulis pesan..."
                     />
                   </div>
 
@@ -1601,7 +1642,7 @@ export default function AdminDashboard({
                     ) : (
                       <Megaphone className="w-4 h-4 text-white" />
                     )}
-                    <span>Kirim ke Semua Wali Siswa</span>
+                    <span>{waTargetType === "ALL" ? "Kirim ke Semua" : "Kirim Pesan"}</span>
                   </button>
                 </form>
               </div>

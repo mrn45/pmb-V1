@@ -146,7 +146,7 @@ export function setupMockApi() {
         }
 
         if (pathname === '/api/wa/send-massal' && method === 'POST') {
-          const { message } = body;
+          const { message, targetType, targetPhone } = body;
           if (!message) return res(400, { message: 'Pesan wajib diisi' });
 
           const settingsSnap = await getDoc(doc(db, 'settings', 'system'));
@@ -155,28 +155,43 @@ export function setupMockApi() {
             return res(400, { message: 'Fonnte API Key belum diatur di menu Pengaturan.' });
           }
 
-          const regsSnap = await getDocs(collection(db, 'registrations'));
-          const phones: string[] = [];
-          regsSnap.forEach(d => {
-            const phone = d.data().parentPhone;
-            if (phone && phone.trim() !== '') {
-              let cleaned = phone.replace(/\D/g, '');
-              if (cleaned.startsWith('08')) {
-                cleaned = '628' + cleaned.substring(2);
-              } else if (cleaned.startsWith('8')) {
-                cleaned = '628' + cleaned.substring(1);
-              }
-              if (!phones.includes(cleaned)) {
-                phones.push(cleaned);
-              }
+          let finalTarget = "";
+          let finalCount = 0;
+
+          if (targetType === "SPECIFIC") {
+            if (!targetPhone) return res(400, { message: 'Nomor telepon tujuan wajib diisi untuk opsi Spesifik.' });
+            let cleaned = targetPhone.replace(/\D/g, '');
+            if (cleaned.startsWith('08')) {
+              cleaned = '628' + cleaned.substring(2);
+            } else if (cleaned.startsWith('8')) {
+              cleaned = '628' + cleaned.substring(1);
             }
-          });
+            finalTarget = cleaned;
+            finalCount = 1;
+          } else {
+            const regsSnap = await getDocs(collection(db, 'registrations'));
+            const phones: string[] = [];
+            regsSnap.forEach(d => {
+              const phone = d.data().parentPhone;
+              if (phone && phone.trim() !== '') {
+                let cleaned = phone.replace(/\D/g, '');
+                if (cleaned.startsWith('08')) {
+                  cleaned = '628' + cleaned.substring(2);
+                } else if (cleaned.startsWith('8')) {
+                  cleaned = '628' + cleaned.substring(1);
+                }
+                if (!phones.includes(cleaned)) {
+                  phones.push(cleaned);
+                }
+              }
+            });
 
-          if (phones.length === 0) {
-            return res(400, { message: 'Tidak ada nomor telepon wali siswa yang ditemukan.' });
+            if (phones.length === 0) {
+              return res(400, { message: 'Tidak ada nomor telepon wali siswa yang ditemukan.' });
+            }
+            finalTarget = phones.join(',');
+            finalCount = phones.length;
           }
-
-          const target = phones.join(',');
 
           try {
             const fonnteRes = await fetch('https://api.fonnte.com/send', {
@@ -185,7 +200,7 @@ export function setupMockApi() {
                 'Authorization': settings.fonteApiKey
               },
               body: new URLSearchParams({
-                target: target,
+                target: finalTarget,
                 message: message,
                 delay: '2',
               })
@@ -196,8 +211,8 @@ export function setupMockApi() {
             }
 
             const active = getActiveUser();
-            await logAction(active.username, active.role, 'WHATSAPP', `Mengirim pesan masal ke ${phones.length} nomor.`);
-            return res(200, { message: `Pesan berhasil dikirim ke ${phones.length} nomor.` });
+            await logAction(active.username, active.role, 'WHATSAPP', `Mengirim pesan ${targetType === 'SPECIFIC' ? 'spesifik' : 'masal'} ke ${finalCount} nomor.`);
+            return res(200, { message: `Pesan berhasil dikirim ke ${finalCount} nomor.` });
           } catch (e: any) {
             return res(500, { message: `Terjadi kesalahan saat menghubungi Fonnte API: ${e.message}` });
           }
