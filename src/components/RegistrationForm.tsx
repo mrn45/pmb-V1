@@ -770,7 +770,10 @@ export default function RegistrationForm({
                 <>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
-                      Nama Sekolah Asal TK/SD/SMP
+                      {formData.level === Jenjang.MDT && "Sekolah Asal TK/PAUD"}
+                      {formData.level === Jenjang.SMPI && "Sekolah Asal MI/SD"}
+                      {formData.level === Jenjang.SMAI && "Sekolah Asal MTs/SMP"}
+                      {formData.level !== Jenjang.MDT && formData.level !== Jenjang.SMPI && formData.level !== Jenjang.SMAI && "Nama Sekolah Asal"}
                     </label>
                     <input
                       type="text"

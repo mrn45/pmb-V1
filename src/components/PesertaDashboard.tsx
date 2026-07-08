@@ -556,7 +556,12 @@ export default function PesertaDashboard({
                 {/* School */}
                 {profileForm?.level !== Jenjang.PAUD && (
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Sekolah Asal</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">
+                      {profileForm?.level === Jenjang.MDT && "Sekolah Asal TK/PAUD"}
+                      {profileForm?.level === Jenjang.SMPI && "Sekolah Asal MI/SD"}
+                      {profileForm?.level === Jenjang.SMAI && "Sekolah Asal MTs/SMP"}
+                      {profileForm?.level !== Jenjang.MDT && profileForm?.level !== Jenjang.SMPI && profileForm?.level !== Jenjang.SMAI && "Sekolah Asal"}
+                    </label>
                     <input
                       disabled={!editMode}
                       type="text"
