@@ -138,10 +138,69 @@ export function setupMockApi() {
 
         if (pathname.startsWith('/api/announcements/') && method === 'DELETE') {
           const id = pathname.split('/').pop();
+          if (!id) return res(400, { message: 'ID is required' });
           await deleteDoc(doc(db, 'announcements', id));
           const active = getActiveUser();
           await logAction(active.username, active.role, 'PENGUMUMAN', `Menghapus pengumuman.`);
           return res(200, { message: 'Deleted' });
+        }
+
+        if (pathname === '/api/wa/send-massal' && method === 'POST') {
+          const { message } = body;
+          if (!message) return res(400, { message: 'Pesan wajib diisi' });
+
+          const settingsSnap = await getDoc(doc(db, 'settings', 'system'));
+          const settings = settingsSnap.exists() ? settingsSnap.data() : null;
+          if (!settings || !settings.fonteApiKey) {
+            return res(400, { message: 'Fonnte API Key belum diatur di menu Pengaturan.' });
+          }
+
+          const regsSnap = await getDocs(collection(db, 'registrations'));
+          const phones: string[] = [];
+          regsSnap.forEach(d => {
+            const phone = d.data().parentPhone;
+            if (phone && phone.trim() !== '') {
+              let cleaned = phone.replace(/\D/g, '');
+              if (cleaned.startsWith('08')) {
+                cleaned = '628' + cleaned.substring(2);
+              } else if (cleaned.startsWith('8')) {
+                cleaned = '628' + cleaned.substring(1);
+              }
+              if (!phones.includes(cleaned)) {
+                phones.push(cleaned);
+              }
+            }
+          });
+
+          if (phones.length === 0) {
+            return res(400, { message: 'Tidak ada nomor telepon wali siswa yang ditemukan.' });
+          }
+
+          const target = phones.join(',');
+
+          try {
+            const fonnteRes = await fetch('https://api.fonnte.com/send', {
+              method: 'POST',
+              headers: {
+                'Authorization': settings.fonteApiKey
+              },
+              body: new URLSearchParams({
+                target: target,
+                message: message,
+                delay: '2',
+              })
+            });
+
+            if (!fonnteRes.ok) {
+              return res(500, { message: 'Gagal mengirim pesan melalui Fonnte API.' });
+            }
+
+            const active = getActiveUser();
+            await logAction(active.username, active.role, 'WHATSAPP', `Mengirim pesan masal ke ${phones.length} nomor.`);
+            return res(200, { message: `Pesan berhasil dikirim ke ${phones.length} nomor.` });
+          } catch (e: any) {
+            return res(500, { message: `Terjadi kesalahan saat menghubungi Fonnte API: ${e.message}` });
+          }
         }
 
         if (pathname === '/api/users' && method === 'GET') {

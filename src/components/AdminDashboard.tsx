@@ -103,6 +103,8 @@ export default function AdminDashboard({
   // Create announcement state
   const [annForm, setAnnForm] = useState({ title: "", content: "", targetRole: "ALL" });
   const [annLoading, setAnnLoading] = useState(false);
+  const [waMessage, setWaMessage] = useState("");
+  const [waLoading, setWaLoading] = useState(false);
 
   // Create Panitia User state
   const [newUserForm, setNewUserForm] = useState({ username: "", password: "", fullName: "", role: Role.PANITIA });
@@ -358,6 +360,36 @@ export default function AdminDashboard({
       console.error(e);
     } finally {
       setAnnLoading(false);
+    }
+  };
+
+  const handleSendWaMassal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waMessage) return;
+
+    setWaLoading(true);
+    try {
+      const response = await fetch("/api/wa/send-massal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ message: waMessage })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showAlert("Berhasil", data.message, "success");
+        setWaMessage("");
+      } else {
+        const err = await response.json();
+        showAlert("Gagal", err.message || "Gagal mengirim pesan WA.", "error");
+      }
+    } catch (e: any) {
+      showAlert("Error", e.message || "Gagal menghubungi server.", "error");
+    } finally {
+      setWaLoading(false);
     }
   };
 
@@ -1250,6 +1282,24 @@ export default function AdminDashboard({
                         />
                       </div>
                     </div>
+
+                    {/* Fonnte API Key */}
+                    <div className="sm:col-span-2 pt-2 border-t border-slate-100">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Fonnte API Key (Untuk Notifikasi WA)</label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
+                          <Phone className="w-3.5 h-3.5" />
+                        </span>
+                        <input
+                          type="password"
+                          disabled={user.role !== Role.ADMIN}
+                          value={configForm?.fonteApiKey || ""}
+                          onChange={(e) => setConfigForm({ ...configForm, fonteApiKey: e.target.value })}
+                          className="w-full text-xs pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary disabled:bg-slate-50 disabled:text-slate-400 text-slate-700 font-semibold font-mono"
+                          placeholder="Masukkan API Key Fonnte di sini..."
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1463,62 +1513,98 @@ export default function AdminDashboard({
         {/* TAB: KELOLA PENGUMUMAN */}
         {activeTab === "announcements" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Create form */}
-            <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
-              <h3 className="font-cairo font-bold text-primary text-sm border-b border-slate-50 pb-2 flex items-center gap-1.5">
-                <Plus className="w-4.5 h-4.5" />
-                <span>Terbitkan Pengumuman</span>
-              </h3>
-              <form onSubmit={handleCreateAnnouncement} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Judul Pengumuman</label>
-                  <input
-                    required
-                    type="text"
-                    value={annForm.title}
-                    onChange={(e) => setAnnForm({ ...annForm, title: e.target.value })}
-                    className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
-                    placeholder="Contoh: Jadwal Ujian Wawancara"
-                  />
-                </div>
+            <div className="space-y-6">
+              {/* Create form */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
+                <h3 className="font-cairo font-bold text-primary text-sm border-b border-slate-50 pb-2 flex items-center gap-1.5">
+                  <Plus className="w-4.5 h-4.5" />
+                  <span>Terbitkan Pengumuman</span>
+                </h3>
+                <form onSubmit={handleCreateAnnouncement} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Judul Pengumuman</label>
+                    <input
+                      required
+                      type="text"
+                      value={annForm.title}
+                      onChange={(e) => setAnnForm({ ...annForm, title: e.target.value })}
+                      className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                      placeholder="Contoh: Jadwal Ujian Wawancara"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Penerima Sasaran</label>
-                  <select
-                    value={annForm.targetRole}
-                    onChange={(e) => setAnnForm({ ...annForm, targetRole: e.target.value })}
-                    className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Penerima Sasaran</label>
+                    <select
+                      value={annForm.targetRole}
+                      onChange={(e) => setAnnForm({ ...annForm, targetRole: e.target.value })}
+                      className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                    >
+                      <option value="ALL">Semua Pengunjung (Landing Page)</option>
+                      <option value={Role.PESERTA}>Hanya Calon Peserta (Portal login)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Isi Pengumuman</label>
+                    <textarea
+                      required
+                      rows={5}
+                      value={annForm.content}
+                      onChange={(e) => setAnnForm({ ...annForm, content: e.target.value })}
+                      className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                      placeholder="Tuliskan detail pengumuman penting di sini..."
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={annLoading}
+                    className="w-full py-2.5 bg-primary hover:bg-teal-800 text-white font-bold rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <option value="ALL">Semua Pengunjung (Landing Page)</option>
-                    <option value={Role.PESERTA}>Hanya Calon Peserta (Portal login)</option>
-                  </select>
-                </div>
+                    {annLoading ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Megaphone className="w-4 h-4 text-accent" />
+                    )}
+                    <span>Terbitkan Sekarang</span>
+                  </button>
+                </form>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Isi Pengumuman</label>
-                  <textarea
-                    required
-                    rows={5}
-                    value={annForm.content}
-                    onChange={(e) => setAnnForm({ ...annForm, content: e.target.value })}
-                    className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
-                    placeholder="Tuliskan detail pengumuman penting di sini..."
-                  />
-                </div>
+              {/* Broadcast WA Form */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
+                <h3 className="font-cairo font-bold text-[#25D366] text-sm border-b border-slate-50 pb-2 flex items-center gap-1.5">
+                  <Phone className="w-4.5 h-4.5" />
+                  <span>Kirim Pesan WA Masal</span>
+                </h3>
+                <form onSubmit={handleSendWaMassal} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Pesan WhatsApp</label>
+                    <textarea
+                      required
+                      rows={5}
+                      value={waMessage}
+                      onChange={(e) => setWaMessage(e.target.value)}
+                      className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#25D366]"
+                      placeholder="Tulis pesan yang akan dikirimkan ke semua nomor wali peserta yang terdaftar..."
+                    />
+                  </div>
 
-                <button
-                  type="submit"
-                  disabled={annLoading}
-                  className="w-full py-2.5 bg-primary hover:bg-teal-800 text-white font-bold rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  {annLoading ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Megaphone className="w-4 h-4 text-accent" />
-                  )}
-                  <span>Terbitkan Sekarang</span>
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    disabled={waLoading}
+                    className="w-full py-2.5 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    {waLoading ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Megaphone className="w-4 h-4 text-white" />
+                    )}
+                    <span>Kirim ke Semua Wali Siswa</span>
+                  </button>
+                </form>
+              </div>
             </div>
 
             {/* List Announcements */}

@@ -101,6 +101,7 @@ export interface SystemSettings {
   g2DaftarUlang?: string;
   showJadwal?: boolean;
   gelombangList?: GelombangItem[];
+  fonteApiKey?: string;
 }
 
 export interface Announcement {
