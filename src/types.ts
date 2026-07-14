@@ -108,6 +108,7 @@ export interface Announcement {
   id: string;
   title: string;
   content: string;
+  imageUrl?: string;
   targetRole: "ALL" | Role.PESERTA | Role.PANITIA;
   createdAt: string;
 }

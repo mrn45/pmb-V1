@@ -101,7 +101,8 @@ export default function AdminDashboard({
   const [isEditingReg, setIsEditingReg] = useState(false);
 
   // Create announcement state
-  const [annForm, setAnnForm] = useState({ title: "", content: "", targetRole: "ALL" });
+  const [annForm, setAnnForm] = useState({ title: "", content: "", targetRole: "ALL", imageUrl: "", createdAt: new Date().toISOString().slice(0, 10) });
+  const [editingAnnId, setEditingAnnId] = useState<string | null>(null);
   const [annLoading, setAnnLoading] = useState(false);
   const [waMessage, setWaMessage] = useState("");
   const [waLoading, setWaLoading] = useState(false);
@@ -334,15 +335,18 @@ export default function AdminDashboard({
     }
   };
 
-  // Create Announcement
-  const handleCreateAnnouncement = async (e: React.FormEvent) => {
+  // Submit Announcement (Create or Update)
+  const handleAnnouncementSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!annForm.title || !annForm.content) return;
 
     setAnnLoading(true);
     try {
-      const response = await fetch("/api/announcements", {
-        method: "POST",
+      const url = editingAnnId ? `/api/announcements/${editingAnnId}` : "/api/announcements";
+      const method = editingAnnId ? "PUT" : "POST";
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
@@ -352,17 +356,39 @@ export default function AdminDashboard({
 
       if (response.ok) {
         const rData = await response.json();
-        setAnnouncements([rData.announcement, ...announcements]);
-        setAnnForm({ title: "", content: "", targetRole: "ALL" });
-        showAlert("Berhasil", "Pengumuman berhasil diterbitkan!", "success");
+        if (editingAnnId) {
+          setAnnouncements(announcements.map(a => a.id === editingAnnId ? rData.announcement : a));
+          showAlert("Berhasil", "Pengumuman berhasil diperbarui!", "success");
+        } else {
+          setAnnouncements([rData.announcement, ...announcements]);
+          showAlert("Berhasil", "Pengumuman berhasil diterbitkan!", "success");
+        }
+        setAnnForm({ title: "", content: "", targetRole: "ALL", imageUrl: "", createdAt: new Date().toISOString().slice(0, 10) });
+        setEditingAnnId(null);
       } else {
-        showAlert("Error", "Gagal membuat pengumuman.", "error");
+        showAlert("Error", "Gagal menyimpan pengumuman.", "error");
       }
     } catch (e) {
       console.error(e);
     } finally {
       setAnnLoading(false);
     }
+  };
+
+  const handleEditAnnouncement = (ann: Announcement) => {
+    setEditingAnnId(ann.id);
+    setAnnForm({
+      title: ann.title,
+      content: ann.content,
+      targetRole: ann.targetRole,
+      imageUrl: ann.imageUrl || "",
+      createdAt: new Date(ann.createdAt).toISOString().slice(0, 10)
+    });
+  };
+
+  const handleCancelEditAnnouncement = () => {
+    setEditingAnnId(null);
+    setAnnForm({ title: "", content: "", targetRole: "ALL", imageUrl: "", createdAt: new Date().toISOString().slice(0, 10) });
   };
 
   const handleSendWaMassal = async (e: React.FormEvent) => {
@@ -1528,9 +1554,9 @@ export default function AdminDashboard({
               <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
                 <h3 className="font-cairo font-bold text-primary text-sm border-b border-slate-50 pb-2 flex items-center gap-1.5">
                   <Plus className="w-4.5 h-4.5" />
-                  <span>Terbitkan Pengumuman</span>
+                  <span>{editingAnnId ? "Edit Pengumuman" : "Terbitkan Pengumuman"}</span>
                 </h3>
-                <form onSubmit={handleCreateAnnouncement} className="space-y-4">
+                <form onSubmit={handleAnnouncementSubmit} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Judul Pengumuman</label>
                     <input
@@ -1567,18 +1593,51 @@ export default function AdminDashboard({
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={annLoading}
-                    className="w-full py-2.5 bg-primary hover:bg-teal-800 text-white font-bold rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    {annLoading ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Megaphone className="w-4 h-4 text-accent" />
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Link Gambar (Opsional)</label>
+                    <input
+                      type="url"
+                      value={annForm.imageUrl}
+                      onChange={(e) => setAnnForm({ ...annForm, imageUrl: e.target.value })}
+                      className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                      placeholder="https://contoh.com/gambar.jpg"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5">Tanggal Pengumuman</label>
+                    <input
+                      type="date"
+                      required
+                      value={annForm.createdAt}
+                      onChange={(e) => setAnnForm({ ...annForm, createdAt: e.target.value })}
+                      className="w-full text-sm px-3.5 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    {editingAnnId && (
+                      <button
+                        type="button"
+                        onClick={handleCancelEditAnnouncement}
+                        className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg text-xs transition-colors cursor-pointer"
+                      >
+                        Batal
+                      </button>
                     )}
-                    <span>Terbitkan Sekarang</span>
-                  </button>
+                    <button
+                      type="submit"
+                      disabled={annLoading}
+                      className="flex-[2] py-2.5 bg-primary hover:bg-teal-800 text-white font-bold rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      {annLoading ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Megaphone className="w-4 h-4 text-accent" />
+                      )}
+                      <span>{editingAnnId ? "Simpan Perubahan" : "Terbitkan Sekarang"}</span>
+                    </button>
+                  </div>
                 </form>
               </div>
 
@@ -1663,15 +1722,27 @@ export default function AdminDashboard({
                           <span className="text-[10px] text-slate-400">{new Date(ann.createdAt).toLocaleDateString("id-ID")}</span>
                         </div>
                         <h4 className="font-bold text-slate-900 text-sm font-cairo">{ann.title}</h4>
-                        <p className="text-xs text-slate-500 whitespace-pre-line leading-relaxed">{ann.content}</p>
+                        {ann.imageUrl && (
+                          <img src={ann.imageUrl} alt={ann.title} className="w-full h-auto max-h-48 object-cover rounded-md mt-2 border border-slate-100" />
+                        )}
+                        <p className="text-xs text-slate-500 whitespace-pre-line leading-relaxed mt-2">{ann.content}</p>
                       </div>
-                      <button
-                        onClick={() => handleDeleteAnnouncement(ann.id)}
-                        className="p-1 text-slate-400 hover:text-red-500 self-start cursor-pointer rounded hover:bg-slate-50"
-                        title="Hapus"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => handleEditAnnouncement(ann)}
+                          className="p-1 text-slate-400 hover:text-blue-500 self-start cursor-pointer rounded hover:bg-slate-50"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAnnouncement(ann.id)}
+                          className="p-1 text-slate-400 hover:text-red-500 self-start cursor-pointer rounded hover:bg-slate-50"
+                          title="Hapus"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (

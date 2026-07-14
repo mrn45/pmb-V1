@@ -129,11 +129,23 @@ export function setupMockApi() {
         }
 
         if (pathname === '/api/announcements' && method === 'POST') {
-          const ann = { ...body, id: Date.now().toString(36) + Math.random().toString(36).substring(2), createdAt: new Date().toISOString() };
+          const ann = { ...body, id: Date.now().toString(36) + Math.random().toString(36).substring(2), createdAt: body.createdAt || new Date().toISOString() };
           await setDoc(doc(db, 'announcements', ann.id), ann);
           const active = getActiveUser();
           await logAction(active.username, active.role, 'PENGUMUMAN', `Membuat pengumuman baru: "${ann.title}".`);
           return res(201, { announcement: ann });
+        }
+
+        if (pathname.startsWith('/api/announcements/') && method === 'PUT') {
+          const id = pathname.split('/').pop();
+          if (!id) return res(400, { message: 'ID is required' });
+          const annSnap = await getDoc(doc(db, 'announcements', id));
+          if (!annSnap.exists()) return res(404, { message: 'Announcement not found' });
+          const updatedAnn = { ...annSnap.data(), ...body };
+          await setDoc(doc(db, 'announcements', id), updatedAnn);
+          const active = getActiveUser();
+          await logAction(active.username, active.role, 'PENGUMUMAN', `Memperbarui pengumuman: "${updatedAnn.title}".`);
+          return res(200, { announcement: updatedAnn });
         }
 
         if (pathname.startsWith('/api/announcements/') && method === 'DELETE') {

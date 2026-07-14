@@ -759,7 +759,12 @@ export default function PesertaDashboard({
                       <span>{new Date(ann.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</span>
                     </div>
                     <h3 className="text-lg font-cairo font-bold text-slate-900 group-hover:text-primary transition-colors">{ann.title}</h3>
-                    <p className="text-sm text-slate-500 mt-2 leading-relaxed whitespace-pre-line">{ann.content}</p>
+                    {ann.imageUrl && (
+                      <div className="mt-4 rounded-lg overflow-hidden border border-slate-100">
+                        <img src={ann.imageUrl} alt={ann.title} className="w-full h-auto object-cover max-h-64" />
+                      </div>
+                    )}
+                    <p className="text-sm text-slate-500 mt-4 leading-relaxed whitespace-pre-line">{ann.content}</p>
                   </div>
                 ))}
               </div>
